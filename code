@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DVD Screensaver</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #screen {
+            position: relative;
+            background-color: #000;
+            width: 100%;
+            height: 100%;
+        }
+
+        #dvd-logo {
+            position: absolute;
+            font-size: 5vw;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            transition: color 0.1s ease-in-out;
+            user-select: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        @media (max-width: 600px) {
+            #dvd-logo {
+                font-size: 10vw;
+                padding: 5px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="screen">
+        <div id="dvd-logo">DVD</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const logo = document.getElementById('dvd-logo');
+            const screen = document.getElementById('screen');
+
+            let x, y; // Position of the logo
+            let vx, vy; // Velocity of the logo
+            let logoWidth, logoHeight;
+
+            // Function to generate a random hexadecimal color
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+
+            // Function to change the logo's color
+            function changeColor() {
+                logo.style.color = getRandomColor();
+            }
+
+            // Function to initialize the logo's position and velocity
+            function initialize() {
+                // Get the dimensions of the logo and the screen
+                logoWidth = logo.offsetWidth;
+                logoHeight = logo.offsetHeight;
+
+                // Set initial random position
+                x = Math.random() * (screen.clientWidth - logoWidth);
+                y = Math.random() * (screen.clientHeight - logoHeight);
+
+                // Set initial random velocity
+                const speed = 2; // Pixels per frame
+                const angle = Math.random() * 2 * Math.PI; // Random angle in radians
+                vx = Math.cos(angle) * speed;
+                vy = Math.sin(angle) * speed;
+
+                // Set the initial color
+                changeColor();
+            }
+
+            // Animation loop
+            function animate() {
+                // Update the logo's position
+                x += vx;
+                y += vy;
+
+                // Check for collisions with the horizontal edges
+                if (x + logoWidth >= screen.clientWidth || x <= 0) {
+                    vx = -vx; // Reverse horizontal velocity
+                    changeColor(); // Change color on collision
+                }
+
+                // Check for collisions with the vertical edges
+                if (y + logoHeight >= screen.clientHeight || y <= 0) {
+                    vy = -vy; // Reverse vertical velocity
+                    changeColor(); // Change color on collision
+                }
+
+                // Update the logo's position on the screen
+                logo.style.left = `${x}px`;
+                logo.style.top = `${y}px`;
+
+                // Request the next frame of the animation
+                requestAnimationFrame(animate);
+            }
+
+            // Initialize and start the animation
+            initialize();
+            animate();
+
+            // Handle window resizing
+            window.addEventListener('resize', () => {
+                // Re-initialize to handle new screen dimensions
+                initialize();
+            });
+        });
+    </script>
+</body>
+</html>
