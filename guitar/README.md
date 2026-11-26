@@ -10,9 +10,7 @@ A guitar practice app in one file (`index.html`). It has no build step and no se
   2. More sounds: 7ths and sus chords, power chords and palm muting, capo and transposing.
   3. Barre chords: the F chord, movable E and A shapes.
   4. Picking and lead: fingerpicking, the minor pentatonic, hammer-ons, pull-offs, slides and bends.
-  5. Theory: keys and chord families.
-
-  6. Music theory: notes on the fretboard (with a note quiz), intervals (with ear-training cues), how chords are built (interactive chord builder), the major scale and keys (key explorer), rhythm and time signatures.
+  5. Music theory: notes on the fretboard (with a note quiz), intervals (with ear-training cues), how chords are built (chord builder), the major scale and keys (key explorer), chord families, rhythm and time signatures.
 
   Each lesson has diagrams, tabs you can listen to, play-along strum patterns and practice goals you can tick off. Progress is saved.
 - **Chord plan**: tick the chords you can play. The app suggests the next chord to learn, chosen by how many songs it unlocks and a sensible learning order. It also lists the songs you can play now and the ones that are one chord away. Each lesson also links songs that practise it.
