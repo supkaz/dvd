@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--PAGE-START-->
+<title>Fretwise Guitar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: app shell — sticky top bar, one view at a time, bottom tab bar on phones / side-free top tabs on wide screens.
+   Palette from the instrument: rosewood fretboard, nickel frets, abalone-green inlay, brass tuning pegs. */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --surface-2:#e8ece6; --line:#d3d9d0;
+  --ink:#1c2420; --ink-2:#57625c; --accent:#0e7a68; --accent-ink:#ffffff; --accent-soft:#d5ece6;
+  --brass:#b7791f; --brass-soft:#f6e7cc; --wood:#4a2f24; --wood-2:#6b4535; --fret:#c9cdd1; --string:#e9dcc1;
+  --good:#1f8a4c; --warn:#b7791f; --bad:#c2412d;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r:12px; --r-sm:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121614; --surface:#1a201d; --surface-2:#232b27; --line:#2f3a35;
+  --ink:#e8eee9; --ink-2:#9aa8a0; --accent:#3cc4ab; --accent-ink:#06201b; --accent-soft:#183a33;
+  --brass:#e0a646; --brass-soft:#3a2e18; --wood:#2b1b15; --wood-2:#3d281f; --fret:#8b9196; --string:#cdbf9f;
+  --good:#45c27a; --warn:#e0a646; --bad:#ef6b55; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --surface:#1a201d; --surface-2:#232b27; --line:#2f3a35;
+  --ink:#e8eee9; --ink-2:#9aa8a0; --accent:#3cc4ab; --accent-ink:#06201b; --accent-soft:#183a33;
+  --brass:#e0a646; --brass-soft:#3a2e18; --wood:#2b1b15; --wood-2:#3d281f; --fret:#8b9196; --string:#cdbf9f;
+  --good:#45c27a; --warn:#e0a646; --bad:#ef6b55; color-scheme:dark}
+
+*{box-sizing:border-box}
+pre,code,textarea,.sheet .ln,.tabblock pre{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:1.9rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.35rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:1.2rem;letter-spacing:-.01em}
+.brand svg{width:28px;height:28px}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab{border:0;background:none;padding:8px 12px;border-radius:999px;font-weight:600;color:var(--ink-2);cursor:pointer;display:flex;align-items:center;gap:6px}
+.tab svg{width:18px;height:18px}
+.tab[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+@media (max-width:720px){
+  .tabs{position:fixed;left:0;right:0;bottom:0;margin:0;justify-content:space-around;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .tab{flex-direction:column;gap:2px;font-size:.72rem;padding:6px 8px;border-radius:10px;flex:1}
+  .tab svg{width:22px;height:22px}
+}
+@media (min-width:721px){body{padding-bottom:32px}}
+
+main{padding-block:20px 32px}
+.view{display:grid;gap:20px}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--ink-2)}
+.muted{color:var(--ink-2)}
+.small{font-size:.85rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grow{flex:1;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:9px 14px;border-radius:var(--r-sm);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;line-height:1.2}
+.btn:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:.85rem}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn svg{width:16px;height:16px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:.75rem;font-weight:600;background:var(--surface-2);color:var(--ink-2)}
+.chip.easy{background:var(--accent-soft);color:var(--accent)}
+.chip.mid{background:var(--brass-soft);color:var(--brass)}
+.field{display:grid;gap:4px}
+.field label{font-size:.8rem;font-weight:600;color:var(--ink-2)}
+input[type=text],input[type=number],input[type=search],select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 11px;width:100%}
+textarea{font-family:var(--f-mono);font-size:.85rem;line-height:1.45;min-height:260px;resize:vertical;white-space:pre;overflow-x:auto}
+input[type=range]{accent-color:var(--accent);width:100%}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:999px;font-weight:600;font-size:.85rem;color:var(--ink-2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0 / .12)}
+.note{border-left:3px solid var(--brass);background:var(--brass-soft);padding:10px 12px;border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:.9rem}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;z-index:50;font-size:.9rem;max-width:calc(100% - 32px)}
+
+/* tuner */
+.tuner{display:grid;gap:18px;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}
+@media (max-width:820px){.tuner{grid-template-columns:minmax(0,1fr)}}
+.gauge{background:var(--wood);color:#f4ead6;border-radius:var(--r);padding:22px 18px 18px;display:grid;gap:14px;justify-items:center;position:relative;overflow:hidden}
+.gauge .notename{font-family:var(--f-display);font-weight:800;font-size:5.5rem;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.gauge .notename sub{font-size:1.6rem;font-weight:600;opacity:.6;vertical-align:baseline;margin-left:2px}
+.gauge .readout{font-family:var(--f-mono);font-size:.9rem;opacity:.85;font-variant-numeric:tabular-nums}
+.gauge > svg{width:100%;max-width:420px;height:auto}
+.gauge .status{font-weight:700;font-size:.95rem;min-height:1.4em}
+.strings{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.strbtn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);padding:10px 4px;cursor:pointer;display:grid;justify-items:center;gap:2px}
+.strbtn b{font-family:var(--f-display);font-size:1.3rem}
+.strbtn span{font-size:.7rem;color:var(--ink-2);font-family:var(--f-mono)}
+.strbtn.on{border-color:var(--accent);background:var(--accent-soft)}
+.strbtn.tuned{border-color:var(--good)}
+
+/* lessons */
+.levels{display:grid;gap:22px}
+.level h2{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.level h2 .chip{font-family:var(--f-body)}
+.lessons{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));margin-top:10px}
+.lcard{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:14px;cursor:pointer;display:grid;gap:6px;align-content:start}
+.lcard:hover{border-color:var(--accent)}
+.lcard .num{font-family:var(--f-mono);font-size:.75rem;color:var(--ink-2)}
+.lcard.done{background:var(--accent-soft);border-color:transparent}
+.lcard.done .num::after{content:" · done";color:var(--accent);font-weight:600}
+.progress{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.lesson{display:grid;gap:18px;max-width:760px}
+.lesson .prose{display:grid;gap:12px;font-size:1rem}
+.lesson .prose p,.lesson .prose li{max-width:66ch}
+.lesson .prose ul,.lesson .prose ol{margin:0;padding-left:1.3em;display:grid;gap:4px}
+.lesson .prose h3{margin-top:10px}
+.tasks{display:grid;gap:8px}
+.tasks label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.tasks input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+.embed{display:grid;gap:10px}
+
+/* tab blocks */
+.tabblock{background:var(--surface-2);border-radius:var(--r-sm);overflow-x:auto;padding:12px 14px}
+.tabblock pre{margin:0;font-family:var(--f-mono);font-size:.88rem;line-height:1.35}
+
+/* chords */
+.chordgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.chordcard{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:8px 6px 6px;display:grid;justify-items:center;cursor:pointer;gap:0}
+.chordcard:hover{border-color:var(--accent)}
+.chordcard .cn{font-family:var(--f-display);font-weight:700;font-size:1.05rem}
+.chordcard svg{width:100%;max-width:110px;height:auto}
+.chordstrip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chordstrip .chordcard{flex:0 0 96px}
+
+/* songs */
+.songlist{display:grid;gap:8px}
+.songrow{display:flex;gap:14px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 14px;cursor:pointer;width:100%}
+.songrow:hover{border-color:var(--accent)}
+.songrow .t{font-weight:700;font-size:1.02rem}
+.songrow .meta{font-size:.82rem;color:var(--ink-2)}
+.songrow .keybadge{flex:none;width:44px;height:44px;border-radius:10px;background:var(--wood);color:#f4ead6;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:1.05rem}
+.songrow .keybadge.user{background:var(--accent)}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;overflow-x:auto}
+.sheet .ln{font-family:var(--f-mono);white-space:pre;line-height:1.35;min-height:1.35em}
+.sheet .ch{color:var(--accent);font-weight:600}
+.sheet .ch button{all:unset;cursor:pointer;color:var(--accent);font-weight:600}
+.sheet .ch button:hover{text-decoration:underline}
+.sheet .sec{font-family:var(--f-display);font-weight:700;color:var(--brass);margin-top:14px;margin-bottom:2px;white-space:normal}
+.sheet .cmt{font-style:italic;color:var(--ink-2);white-space:normal;font-family:var(--f-body)}
+.sheet .tabln{color:var(--ink);background:var(--surface-2)}
+.sheet .tabln.first{border-radius:6px 6px 0 0;padding-top:4px}
+.sheet .tabln.last{border-radius:0 0 6px 6px;padding-bottom:4px;margin-bottom:6px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;position:sticky;top:calc(env(safe-area-inset-top,0px) + 53px);z-index:10;background:var(--bg);padding-block:8px}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface)}
+.stepper button{border:0;background:none;padding:7px 10px;cursor:pointer;font-weight:700}
+.stepper span{min-width:62px;text-align:center;font-size:.82rem;font-weight:600;font-variant-numeric:tabular-nums}
+.shots{display:grid;gap:10px}
+.shots img{border-radius:var(--r-sm);border:1px solid var(--line);width:100%}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.thumbs figure{margin:0;position:relative}
+.thumbs img{width:96px;height:96px;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line);display:block}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);cursor:pointer;font-weight:700;line-height:1}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:18px;display:grid;gap:10px;justify-items:center;text-align:center}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.editor{display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:860px){.editor{grid-template-columns:minmax(0,1fr)}}
+.formgrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+
+/* practice */
+.practice{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.bpm{font-family:var(--f-display);font-weight:800;font-size:3.2rem;line-height:1;font-variant-numeric:tabular-nums}
+.beats{display:flex;gap:8px}
+.beats i{width:18px;height:18px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line)}
+.beats i.on{background:var(--accent);border-color:var(--accent)}
+.beats i.on.acc{background:var(--brass);border-color:var(--brass)}
+.flash{display:grid;justify-items:center;gap:4px;padding:8px}
+.flash .big{font-family:var(--f-display);font-weight:800;font-size:3rem;line-height:1}
+.flash svg{width:150px;height:auto}
+.strum{display:flex;gap:4px;flex-wrap:wrap}
+.strum span{width:34px;height:42px;border-radius:6px;background:var(--surface-2);display:grid;place-items:center;font-weight:800;font-family:var(--f-mono);font-size:.95rem;color:var(--ink-2)}
+.strum span.hit{color:var(--ink)}
+.strum span.now{background:var(--accent);color:var(--accent-ink)}
+.strum span small{display:block;font-size:.6rem;font-weight:500;color:var(--ink-2)}
+.fretwrap{overflow-x:auto}
+.fretwrap svg{min-width:560px;width:100%;height:auto;display:block}
+table.keys{border-collapse:collapse;font-variant-numeric:tabular-nums;width:100%}
+table.keys th,table.keys td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left}
+table.keys th{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+.tablewrap{overflow-x:auto}
+.savebar{position:sticky;bottom:0;background:var(--bg);padding-block:10px;border-top:1px solid var(--line)}
+@media (max-width:720px){.savebar{bottom:calc(64px + env(safe-area-inset-bottom,0px))}}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:20px;display:grid;gap:8px;justify-items:start}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+<!--SPLIT-->
+</head>
+<body>
+<!--/SPLIT-->
+<header class="top">
+  <div class="wrap">
+    <div class="brand" aria-label="Fretwise">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="7" fill="var(--wood)"/><g stroke="var(--fret)" stroke-width="1.4"><line x1="9" y1="7" x2="9" y2="25"/><line x1="16" y1="7" x2="16" y2="25"/><line x1="23" y1="7" x2="23" y2="25"/></g><g stroke="var(--string)" stroke-width="1"><line x1="6" y1="11" x2="26" y2="11"/><line x1="6" y1="16" x2="26" y2="16"/><line x1="6" y1="21" x2="26" y2="21"/></g><circle cx="19.5" cy="16" r="3" fill="var(--accent)"/></svg>
+      Fretwise
+    </div>
+    <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+<div class="toast" id="toast" hidden></div>
+<input type="file" id="filepick" accept="image/*" multiple hidden>
+<input type="file" id="jsonpick" accept=".json,.txt,.pro,.chopro,.cho,application/json,text/plain" hidden>
+
+<script>
+"use strict";
+/* ===================== tiny helpers ===================== */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const h = (html) => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+function toast(msg, ms = 2400){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => t.hidden = true, ms); }
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } };
+const ICON = {
+  tune:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 16a8 8 0 0 1 16 0"/><path d="M12 16l4-6"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></svg>',
+  learn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l9-3 9 3-9 3z"/><path d="M7 8v5c0 1.5 2.2 3 5 3s5-1.5 5-3V8"/></svg>',
+  practice:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l3 18H6z"/><path d="M12 15l4-9"/></svg>',
+  chords:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M5 9h14M5 14h14M10 3v18M14 3v18" stroke-width="1.2"/><circle cx="12" cy="11.5" r="1.8" fill="currentColor"/></svg>',
+  songs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg>',
+  stop:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+};
+
+/* ===================== music theory ===================== */
+const SHARP = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const NICE  = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+const NOTE_IDX = {C:0,"C#":1,Db:1,D:2,"D#":3,Eb:3,E:4,F:5,"F#":6,Gb:6,G:7,"G#":8,Ab:8,A:9,"A#":10,Bb:10,B:11,Cb:11,"E#":5,Fb:4,"B#":0};
+const midiToFreq = m => 440 * Math.pow(2, (m - 69) / 12);
+const STD = [40,45,50,55,59,64]; // E2 A2 D3 G3 B3 E4 (low → high)
+const TUNINGS = {
+  "Standard": [40,45,50,55,59,64],
+  "Drop D":   [38,45,50,55,59,64],
+  "Half step down": [39,44,49,54,58,63],
+  "Open G":   [38,43,50,55,59,62],
+  "DADGAD":   [38,45,50,55,57,62],
+};
+const midiName = m => NICE[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1);
+
+// Chord symbol parsing
+const CHORD_RE = /^([A-G](?:#|b)?)((?:maj|min|m|M|dim|aug|sus|add|\+|°|ø)?[0-9]*(?:(?:sus|add|maj|b|#)[0-9]+)*)(?:\/([A-G](?:#|b)?))?$/;
+function parseChord(sym){
+  const s = String(sym).replace(/^\(|\)$/g, "");
+  const m = s.match(CHORD_RE); if (!m) return null;
+  return { root: m[1], q: m[2] || "", bass: m[3] || null };
+}
+const isChord = tok => !!parseChord(tok);
+function transposeNote(n, st, preferFlat){
+  const i = NOTE_IDX[n]; if (i == null) return n;
+  const j = ((i + st) % 12 + 12) % 12;
+  return preferFlat ? ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"][j] : NICE[j];
+}
+function transposeChord(sym, st){
+  if (!st) return sym;
+  const p = parseChord(sym); if (!p) return sym;
+  const wrapL = sym.startsWith("(") ? "(" : "", wrapR = sym.endsWith(")") ? ")" : "";
+  const root = transposeNote(p.root, st); const flat = /b/.test(root);
+  const bass = p.bass ? (flat ? transposeNote(p.bass, st, true) : SHARP[((NOTE_IDX[p.bass] + st) % 12 + 12) % 12]) : null;
+  return wrapL + root + p.q + (bass ? "/" + bass : "") + wrapR;
+}
+
+/* ===================== chord shapes ===================== */
+// frets low E → high e ("x" muted); fingers same order (0 = none)
+const CHORDS = {
+  "C":["x32010","032010"], "C7":["x32310","032410"], "Cmaj7":["x32000","032000"], "Cadd9":["x32033","021034"],
+  "D":["xx0232","000132"], "Dm":["xx0231","000231"], "D7":["xx0212","000213"], "Dmaj7":["xx0222","000111"],
+  "Dsus2":["xx0230","000130"], "Dsus4":["xx0233","000134"], "Dm7":["xx0211","000211"],
+  "E":["022100","023100"], "Em":["022000","023000"], "E7":["020100","020100"], "Em7":["020000","020000"], "Esus4":["022200","023400"],
+  "F":["133211","134211"], "Fm":["133111","134111"], "Fmaj7":["xx3210","003210"],
+  "G":["320003","210003"], "G7":["320001","320001"], "Gmaj7":["3x0002","200001"],
+  "A":["x02220","001230"], "Am":["x02210","002310"], "A7":["x02020","002030"], "Am7":["x02010","002010"],
+  "Asus2":["x02200","001200"], "Asus4":["x02230","001240"], "Amaj7":["x02120","002130"],
+  "B7":["x21202","021304"], "Bm":["x24432","013421"], "Bb":["x13331","013331"],
+  "F#m":["244222","134111"], "C#m":["x46654","013421"],
+  "E5":["022xxx","011000"], "A5":["x022xx","001100"], "D5":["xx023x","000130"], "G5":["355xxx","134000"],
+};
+const CHORD_GROUPS = [
+  ["Open majors", ["C","D","E","G","A"]],
+  ["Open minors", ["Am","Dm","Em"]],
+  ["Sevenths", ["A7","B7","C7","D7","E7","G7","Am7","Dm7","Em7"]],
+  ["Color chords", ["Cmaj7","Dmaj7","Fmaj7","Gmaj7","Amaj7","Cadd9","Dsus2","Dsus4","Asus2","Asus4","Esus4"]],
+  ["Barre chords", ["F","Fm","Bm","Bb","F#m","C#m"]],
+  ["Power chords", ["E5","A5","D5","G5"]],
+];
+// movable barre templates (offset from root fret)
+const SHAPES = {
+  E:{ "":[0,2,2,1,0,0], m:[0,2,2,0,0,0], "7":[0,2,0,1,0,0], m7:[0,2,0,0,0,0], maj7:[0,null,1,1,0,null], sus4:[0,2,2,2,0,0], "5":[0,2,2,null,null,null] },
+  A:{ "":[null,0,2,2,2,0], m:[null,0,2,2,1,0], "7":[null,0,2,0,2,0], m7:[null,0,2,0,1,0], maj7:[null,0,2,1,2,0], sus2:[null,0,2,2,0,0], sus4:[null,0,2,2,3,0], "5":[null,0,2,2,null,null], dim:[null,0,1,2,1,null], m7b5:[null,0,1,0,1,null] },
+};
+function qualityFamily(q){
+  if (/^(5)$/.test(q)) return "5";
+  if (/^(m7b5|ø)/.test(q)) return "m7b5";
+  if (/^(dim|°)/.test(q)) return "dim";
+  if (/^(maj7|M7|maj9)/.test(q)) return "maj7";
+  if (/^(m7|min7|m9|m11)/.test(q)) return "m7";
+  if (/^(m|min)(?!aj)/.test(q)) return "m";
+  if (/^(7|9|11|13)/.test(q)) return "7";
+  if (/^sus2/.test(q)) return "sus2";
+  if (/^sus/.test(q)) return "sus4";
+  return "";
+}
+function shapeFor(sym){
+  const s = String(sym).replace(/^\(|\)$/g, "");
+  if (CHORDS[s]) return toShape(CHORDS[s]);
+  const p = parseChord(s); if (!p) return null;
+  const root = NICE[NOTE_IDX[p.root]] ?? p.root;
+  const alias = root + p.q;
+  if (CHORDS[alias]) return toShape(CHORDS[alias]);
+  const fam = qualityFamily(p.q);
+  if (CHORDS[root + fam]) return toShape(CHORDS[root + fam]);
+  // pick the lowest-fret movable shape
+  let best = null;
+  for (const [base, lowString] of [["E",40],["A",45]]){
+    const tpl = SHAPES[base][fam]; if (!tpl) continue;
+    let r = ((NOTE_IDX[p.root] - (lowString % 12)) % 12 + 12) % 12; if (r === 0) r = 12;
+    if (!best || r < best.r) best = { r, tpl };
+  }
+  if (!best) return fam ? shapeFor(p.root + (fam.startsWith("m") && fam !== "maj7" ? "m" : "")) : null;
+  const frets = best.tpl.map(o => o == null ? -1 : o + best.r);
+  const fretted = frets.filter(f => f > 0); const min = Math.min(...fretted);
+  const order = [...new Set(fretted.filter(f => f > min))].sort((a,b) => a-b);
+  const fingers = frets.map(f => f < 0 ? 0 : f === min ? 1 : Math.min(4, 2 + order.indexOf(f)));
+  return { frets, fingers };
+}
+function toShape([f, fi]){ return { frets:[...f].map(c => c === "x" ? -1 : parseInt(c, 36)), fingers:[...fi].map(c => c === "x" ? 0 : +c) }; }
+
+function chordSVG(name, shape, opts = {}){
+  if (!shape) return `<svg viewBox="0 0 100 136"><text x="50" y="68" text-anchor="middle" fill="var(--ink-2)" font-size="11">no diagram</text></svg>`;
+  const { frets, fingers } = shape;
+  const fretted = frets.filter(f => f > 0);
+  const maxF = fretted.length ? Math.max(...fretted) : 0;
+  const minF = fretted.length ? Math.min(...fretted) : 0;
+  const base = maxF <= 4 ? 1 : minF;
+  const X0 = 26, DX = 12, Y0 = 26, DY = 18, N = 5;
+  let s = `<svg viewBox="0 0 100 136" role="img" aria-label="${esc(name)} chord diagram">`;
+  // nut / position
+  if (base === 1) s += `<rect x="${X0-1}" y="${Y0-4}" width="${DX*5+2}" height="4" fill="var(--ink)"/>`;
+  else s += `<text x="${X0-6}" y="${Y0+DY*0.5+4}" text-anchor="end" font-size="10" fill="var(--ink-2)" font-family="var(--f-mono)">${base}fr</text>`;
+  for (let i = 0; i <= N; i++) s += `<line x1="${X0}" x2="${X0+DX*5}" y1="${Y0+i*DY}" y2="${Y0+i*DY}" stroke="var(--line)" stroke-width="1.2"/>`;
+  for (let i = 0; i < 6; i++) s += `<line x1="${X0+i*DX}" x2="${X0+i*DX}" y1="${Y0}" y2="${Y0+N*DY}" stroke="var(--ink-2)" stroke-width="${1.6 - i*0.15}"/>`;
+  // barre
+  const one = frets.map((f,i) => fingers[i] === 1 && f === minF ? i : -1).filter(i => i >= 0);
+  if (one.length > 1 && minF > 0){
+    const y = Y0 + (minF - base + 0.5) * DY;
+    s += `<rect x="${X0+one[0]*DX-5}" y="${y-5}" width="${(one[one.length-1]-one[0])*DX+10}" height="10" rx="5" fill="var(--accent)"/>`;
+  }
+  frets.forEach((f, i) => {
+    const x = X0 + i * DX;
+    if (f < 0) s += `<text x="${x}" y="${Y0-8}" text-anchor="middle" font-size="10" fill="var(--ink-2)">×</text>`;
+    else if (f === 0) s += `<circle cx="${x}" cy="${Y0-11}" r="3.4" fill="none" stroke="var(--ink-2)" stroke-width="1.3"/>`;
+    else {
+      const y = Y0 + (f - base + 0.5) * DY;
+      s += `<circle cx="${x}" cy="${y}" r="5.6" fill="var(--accent)"/>`;
+      if (fingers[i] && !opts.noFingers) s += `<text x="${x}" y="${y+3.4}" text-anchor="middle" font-size="8.5" font-weight="700" fill="var(--accent-ink)">${fingers[i]}</text>`;
+    }
+  });
+  s += `<text x="${X0+DX*2.5}" y="${Y0+N*DY+16}" text-anchor="middle" font-size="9" fill="var(--ink-2)" font-family="var(--f-mono)">${frets.map(f => f < 0 ? "x" : f).join(" ")}</text>`;
+  return s + `</svg>`;
+}
+function chordCard(name){
+  return `<button class="chordcard" data-strum="${esc(name)}" title="Tap to hear ${esc(name)}"><span class="cn">${esc(name)}</span>${chordSVG(name, shapeFor(name))}</button>`;
+}
+
+/* ===================== audio ===================== */
+const Audio = {
+  ctx:null, master:null, cache:new Map(),
+  ensure(){
+    if (!this.ctx){ const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; this.ctx = new C(); this.master = this.ctx.createGain(); this.master.gain.value = 0.7; this.master.connect(this.ctx.destination); }
+    if (this.ctx.state === "suspended") this.ctx.resume();
+    return this.ctx;
+  },
+  // Karplus–Strong plucked string
+  buffer(freq, dur = 2.6){
+    const key = Math.round(freq * 10) + ":" + dur;
+    if (this.cache.has(key)) return this.cache.get(key);
+    const sr = this.ctx.sampleRate, len = Math.floor(sr * dur), buf = this.ctx.createBuffer(1, len, sr), d = buf.getChannelData(0);
+    const N = Math.max(2, Math.round(sr / freq)); const ring = new Float32Array(N);
+    for (let i = 0; i < N; i++) ring[i] = Math.random() * 2 - 1;
+    let p = 0, prev = 0; const decay = 0.996 - Math.min(0.006, freq / 200000);
+    for (let i = 0; i < len; i++){ const cur = ring[p]; const nxt = ring[(p + 1) % N]; const v = decay * 0.5 * (cur + nxt); ring[p] = v; d[i] = cur * 0.6 + prev * 0.4; prev = cur; p = (p + 1) % N; }
+    this.cache.set(key, buf); return buf;
+  },
+  pluck(freq, when = 0, vol = 0.5, dur = 2.6){
+    const ctx = this.ensure(); if (!ctx) return;
+    const src = ctx.createBufferSource(); src.buffer = this.buffer(freq, dur);
+    const g = ctx.createGain(); g.gain.value = vol; src.connect(g); g.connect(this.master);
+    const t = ctx.currentTime + when; src.start(t); g.gain.setTargetAtTime(0, t + dur - 0.4, 0.1);
+  },
+  strum(sym, { when = 0, up = false, vol = 0.32, gap = 0.022, dur = 2.2 } = {}){
+    const sh = shapeFor(sym); if (!sh) return;
+    let notes = sh.frets.map((f, i) => f < 0 ? null : STD[i] + f).filter(n => n != null);
+    if (up) notes = notes.reverse().slice(0, 4);
+    notes.forEach((m, i) => this.pluck(midiToFreq(m), when + i * gap, vol, dur));
+  },
+  click(when, accent){
+    const ctx = this.ensure(); const o = ctx.createOscillator(), g = ctx.createGain();
+    o.frequency.value = accent ? 1760 : 1100; o.connect(g); g.connect(this.master);
+    g.gain.setValueAtTime(0.0001, when); g.gain.exponentialRampToValueAtTime(accent ? 0.6 : 0.35, when + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, when + 0.05);
+    o.start(when); o.stop(when + 0.06);
+  },
+  playTabNotes(notes, bpm = 90){ // notes: [[midi|array, beats]]
+    let t = 0.05; const spb = 60 / bpm;
+    for (const [m, b] of notes){ (Array.isArray(m) ? m : [m]).forEach(x => this.pluck(midiToFreq(x), t, 0.45, 1.6)); t += b * spb; }
+    return t;
+  },
+};
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-strum]"); if (b){ Audio.strum(b.dataset.strum); }
+});
+
+/* ===================== fretboard diagram ===================== */
+// dots: [{s: 0..5 (0 = high e), f, label, root}]
+function fretboardSVG({ from = 0, to = 12, dots = [], labelStrings = true }){
+  const frets = to - from; const W = 40 + frets * 52 + 20, H = 150, top = 22, gap = 20;
+  const x = f => 40 + (f - from) * 52; const y = s => top + s * gap;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Fretboard diagram">`;
+  s += `<rect x="40" y="${top-8}" width="${frets*52}" height="${gap*5+16}" rx="4" fill="var(--wood)"/>`;
+  const inl = [3,5,7,9,15,17]; for (const f of inl) if (f > from && f <= to) s += `<circle cx="${x(f)-26}" cy="${top+gap*2.5}" r="5" fill="var(--wood-2)"/>`;
+  if (12 > from && 12 <= to){ s += `<circle cx="${x(12)-26}" cy="${top+gap*1.5}" r="5" fill="var(--wood-2)"/><circle cx="${x(12)-26}" cy="${top+gap*3.5}" r="5" fill="var(--wood-2)"/>`; }
+  for (let f = from; f <= to; f++) s += `<line x1="${x(f)}" x2="${x(f)}" y1="${top-8}" y2="${top+gap*5+8}" stroke="var(--fret)" stroke-width="${f === 0 ? 6 : 2}"/>`;
+  const names = ["e","B","G","D","A","E"];
+  for (let i = 0; i < 6; i++){ s += `<line x1="40" x2="${x(to)}" y1="${y(i)}" y2="${y(i)}" stroke="var(--string)" stroke-width="${0.8 + i*0.35}"/>`; if (labelStrings) s += `<text x="24" y="${y(i)+4}" text-anchor="middle" font-size="11" font-family="var(--f-mono)" fill="var(--ink-2)">${names[i]}</text>`; }
+  for (let f = Math.max(1, from + 1); f <= to; f++) s += `<text x="${x(f)-26}" y="${H-6}" text-anchor="middle" font-size="10" font-family="var(--f-mono)" fill="var(--ink-2)">${f}</text>`;
+  for (const d of dots){
+    const cx = d.f === 0 ? x(from) - 12 : x(d.f) - 26;
+    s += `<circle cx="${cx}" cy="${y(d.s)}" r="9" fill="${d.root ? "var(--brass)" : "var(--accent)"}" stroke="var(--wood)" stroke-width="1.5"/>`;
+    if (d.label) s += `<text x="${cx}" y="${y(d.s)+3.5}" text-anchor="middle" font-size="9" font-weight="700" fill="${d.root ? "#1c1408" : "var(--accent-ink)"}">${esc(d.label)}</text>`;
+  }
+  return s + `</svg>`;
+}
+const FRETBOARDS = {
+  pentaAm: () => {
+    const box = { 5:[5,8], 4:[5,7], 3:[5,7], 2:[5,7], 1:[5,8], 0:[5,8] }; // string index 5 = low E
+    const dots = []; const strMidi = [64,59,55,50,45,40];
+    for (const s in box) for (const f of box[s]){ const m = strMidi[s] + f; dots.push({ s:+s, f, label: NICE[m % 12], root: m % 12 === 9 }); }
+    return fretboardSVG({ from: 3, to: 10, dots });
+  },
+  rootNotes: () => {
+    const dots = []; const strs = [[5,40],[4,45]];
+    for (const [s, base] of strs) for (let f = 0; f <= 12; f++){ const n = NICE[(base + f) % 12]; if (n.length === 1) dots.push({ s, f, label: n, root: n === "A" || n === "E" ? false : false }); }
+    return fretboardSVG({ from: 0, to: 12, dots });
+  },
+};
+
+/* ===================== tab blocks ===================== */
+const TABS = {
+  rising:`   Am          C           D           F           E
+e|-------0----|-------0----|-------2----|-------1----|-------0----|
+B|-----1---1--|-----1---1--|-----3---3--|-----1---1--|-----0---0--|
+G|---2-------2|---0-------0|---2-------2|---2-------2|---1-------1|
+D|------------|------------|-0----------|-3----------|------------|
+A|-0----------|-3----------|------------|------------|------------|
+E|------------|------------|------------|------------|-0----------|
+   1 2 3 4 5 6`,
+  penta:`e|---------------------5-8-|-8-5---------------------|
+B|-----------------5-8-----|-----8-5-----------------|
+G|-------------5-7---------|---------7-5-------------|
+D|---------5-7-------------|-------------7-5---------|
+A|-----5-7-----------------|-----------------7-5-----|
+E|-5-8---------------------|---------------------8-5-|`,
+  travisC:`   C                 G
+e|-0---------------|-3---------------|
+B|-------1-------1-|-------0-------0-|
+G|---0-------0-----|---0-------0-----|
+D|-----2-------2---|-----0-------0---|
+A|-3-------3-------|-----------------|
+E|-----------------|-3-------3-------|
+   T i T m T i T m   T i T m T i T m`,
+  legato:`e|-5h8p5----------------------|
+B|-------5h8p5----------------|
+G|-------------5h7p5----------|
+D|-------------------5h7p5----|
+A|----------------------------|
+E|----------------------------|`,
+  slides:`e|--------------------------|
+B|--------------------------|
+G|-5/7-7\\5---5/7-9b(10)-7---|
+D|-------------------------7|
+A|--------------------------|
+E|--------------------------|`,
+  shuffle:`   E                  A                  B7
+e|------------------|------------------|------------------|
+B|------------------|------------------|------------------|
+G|------------------|------------------|------------------|
+D|------------------|-2-2-4-4-2-2-4-4--|-4-4-6-6-4-4-6-6--|
+A|-2-2-4-4-2-2-4-4--|-0-0-0-0-0-0-0-0--|-2-2-2-2-2-2-2-2--|
+E|-0-0-0-0-0-0-0-0--|------------------|------------------|`,
+  power:`   E5      G5    A5        E5      G5  A5 G5
+e|-----------------|-----------------|
+B|-----------------|-----------------|
+G|-----------------|-----------------|
+D|-----------------|-----------------|
+A|-2-2-2---5-5---7-|-2-2-2---5---7-5-|
+E|-0-0-0---3-3---5-|-0-0-0---3---5-3-|
+  PM-----`,
+  shapes:`   E   F   G       A   B   C
+e|-0-|-1-|-3-|---|-0-|-2-|-3-|
+B|-0-|-1-|-3-|---|-2-|-4-|-5-|
+G|-1-|-2-|-4-|---|-2-|-4-|-5-|
+D|-2-|-3-|-5-|---|-2-|-4-|-5-|
+A|-2-|-3-|-5-|---|-0-|-2-|-3-|
+E|-0-|-1-|-3-|---|---|---|---|
+  E-shape family  A-shape family`,
+  reading:`e|-----------0-----|    numbers = fret to press (0 = open string)
+B|---------1---1---|    top line = thinnest string (high e)
+G|-------2-------2-|    bottom line = thickest string (low E)
+D|-----2-----------|    read left → right, notes stacked vertically
+A|---0-------------|    are played together
+E|-----------------|`,
+};
+// playable note lists for the "hear it" buttons [midi or [midi,...], beats]
+const TAB_AUDIO = {
+  rising: () => { const out = []; const arp = (b,g,bb,e) => [[b,.5],[55+g,.5],[59+bb,.5],[64+e,.5],[59+bb,.5],[55+g,.5]];
+    out.push(...arp(45,2,1,0), ...arp(48,0,1,0), ...arp(50,2,3,2), ...arp(53,2,1,1), ...arp(40,1,0,0)); return { notes: out, bpm: 110 }; },
+  penta: () => { const seq = [[40,5],[40,8],[45,5],[45,7],[50,5],[50,7],[55,5],[55,7],[59,5],[59,8],[64,5],[64,8]];
+    const up = seq.map(([s,f]) => [s+f,.5]); return { notes: [...up, ...up.slice().reverse()], bpm: 100 }; },
+  travisC: () => { const c = [48,55,52,60, 48,55,52,60].map(m => [m,.5]); c[0] = [[48,64],.5]; const g = [43,55,50,59,43,55,50,59].map(m => [m,.5]); g[0] = [[43,67],.5]; return { notes:[...c,...g], bpm: 90 }; },
+  legato: () => ({ notes: [[69,.5],[72,.25],[69,.75],[64,.5],[67,.25],[64,.75],[60,.5],[62,.25],[60,.75],[55,.5],[57,.25],[55,.75]], bpm: 90 }),
+  shuffle: () => { const bar = (lo, a, b) => [[[lo,a],.5],[[lo,a],.5],[[lo,b],.5],[[lo,b],.5],[[lo,a],.5],[[lo,a],.5],[[lo,b],.5],[[lo,b],.5]];
+    return { notes: [...bar(40,47,49), ...bar(45,52,54), ...bar(47,54,56)], bpm: 130 }; },
+  power: () => { const p = r => [r, r+7]; return { notes: [[p(40),.5],[p(40),.5],[p(40),.5],[null,.5],[p(43),.5],[p(43),.5],[null,.5],[p(45),.5],[p(40),.5],[p(40),.5],[p(40),.5],[null,.5],[p(43),.5],[null,.5],[p(45),.5],[p(43),.5]].map(([m,b]) => [m ?? [], b]), bpm: 120 }; },
+};
+
+/* ===================== lessons ===================== */
+const LEVELS = [
+  { id:"l1", title:"Solid foundations", blurb:"You know the open chords. These lessons make them clean, fast and in time." },
+  { id:"l2", title:"More sounds from the same shapes", blurb:"Small changes to chords you already play: sevenths, suspensions, power chords and the capo." },
+  { id:"l3", title:"Barre chords", blurb:"The F chord wall, and how barre shapes unlock every key on the neck." },
+  { id:"l4", title:"Picking and lead", blurb:"Fingerpicking patterns, your first scale, and the techniques that make lines sing." },
+  { id:"l5", title:"Theory you'll actually use", blurb:"Keys, chord families and why the same four chords show up in so many songs." },
+];
+const LESSONS = [
+  { id:"changes", level:"l1", title:"Clean, fast chord changes", min:15, body:`
+<p>Knowing a chord and switching to it on the beat are two different skills. Most players who "know the chords" lose time on the change. The fix is a focused drill called <b>one-minute changes</b>.</p>
+<h3>How the drill works</h3>
+<ol><li>Pick two chords that give you trouble, for example C and G.</li><li>Set a 60-second timer. Strum each chord once, then switch. Count every successful switch.</li><li>Write down your score. Repeat daily. Most people double their score within two weeks.</li></ol>
+{{chords:C,G,Am,D,Em}}
+<h3>Tricks that speed up changes</h3>
+<ul><li><b>Anchor fingers.</b> Between C and Am, your 1st and 2nd fingers don't move. Only the 3rd finger travels.</li><li><b>Pivot fingers.</b> From G to Em, keep the 2nd finger in contact and slide the rest.</li><li><b>Move as a shape.</b> Lift all fingers together and land them together instead of placing them one by one.</li><li><b>The last eighth note is free.</b> In a real song, release the old chord on the "and" of beat 4. An open strum there sounds fine and buys you time.</li></ul>
+{{tool:changes}}`,
+    tasks:["Score 30+ changes in one minute on C ↔ G","Score 30+ on Am ↔ D","Play C – G – Am – Em in time at 70 BPM, one strum per beat"] },
+  { id:"strum", level:"l1", title:"Strumming patterns that groove", min:20, body:`
+<p>Strumming is a pendulum. Your hand moves <b>down on every beat and up on every "and"</b>, all the time. A pattern is just choosing which of those swings actually hit the strings.</p>
+<h3>Pattern 1: the "folk" strum</h3>
+<p>Down, down-up, up-down-up. Count it: <b>1, 2 &, &, 4 &</b>. The hand still swings on beat 3, it just misses the strings.</p>
+{{strum:D.DU.UDU|G,C,D,G}}
+<h3>Pattern 2: the pop push</h3>
+<p>Two steady downs, then down-up through beats 3 and 4. Count <b>1, 2, 3 & 4 &</b> and lean on beat 1.</p>
+{{strum:D.D.DUDU|C,Am,F,G}}
+<h3>Pattern 3: 3/4 waltz</h3>
+<p>For songs in three, like Amazing Grace and Scarborough Fair: a strong bass note, then two lighter strums.</p>
+{{strum:D.D.DU|G,C,G,D}}
+<p class="note">Keep your wrist loose and hold the pick lightly, with about 2–3 mm showing. Tension makes strumming sound choppy.</p>`,
+    tasks:["Play pattern 1 for two minutes without stopping at 80 BPM","Play pattern 2 over C – Am – F – G","Strum Amazing Grace with the 3/4 pattern"] },
+  { id:"tabs", level:"l1", title:"How to read tabs", min:10, body:`
+<p>Tablature (tab) shows <b>where</b> to put your fingers rather than which notes they are. It's the fastest way to learn riffs and melodies, and it's what most songs online use.</p>
+{{tab:reading}}
+<h3>Symbols you'll see</h3>
+<ul><li><code>h</code> hammer-on: pick the first note, then slam a finger down for the second without picking.</li><li><code>p</code> pull-off: the reverse. Flick the finger off to sound the lower note.</li><li><code>/</code> and <code>\\</code> slide up or down while holding pressure.</li><li><code>b</code> bend the string up. <code>7b9</code> means bend fret 7 until it sounds like fret 9.</li><li><code>x</code> muted, percussive hit. <code>PM</code> palm mute. <code>~</code> vibrato.</li></ul>
+<p>Most tabs don't show rhythm. Listen to the song while you read, or use the metronome on the Practice tab.</p>
+{{tab:power}}`,
+    tasks:["Play the power-chord riff above from the tab","Find the symbols h, p and / in a tab of a song you like"] },
+  { id:"color", level:"l2", title:"Sevenths and sus chords", min:15, body:`
+<p>Add or lift one finger from a chord you know and you get a new color. These are the chords that make songs sound "finished" instead of beginner-ish.</p>
+<h3>Dominant 7ths: tension that wants to resolve</h3>
+<p>A 7th chord pulls toward the chord a fifth below. Play <b>E7 → Am</b> or <b>D7 → G</b> and hear the pull.</p>
+{{chords:A7,B7,C7,D7,E7,G7}}
+{{prog:D7,G,E7,Am}}
+<h3>Sus chords: decorations on the same shape</h3>
+<p>"Sus" means the 3rd of the chord is replaced. On D, hammer your pinky on and off the high e string while strumming: D – Dsus4 – D – Dsus2. That's a move you've heard on countless records.</p>
+{{chords:Dsus2,D,Dsus4,Asus2,A,Asus4}}
+{{prog:D,Dsus4,D,Dsus2,A,Asus4,A,Asus2}}
+<h3>Major 7ths: soft and dreamy</h3>
+{{chords:Cmaj7,Fmaj7,Amaj7,Dmaj7}}`,
+    tasks:["Play D – Dsus4 – D – Dsus2 smoothly","Use B7 → Em in Wayfaring Stranger","Swap F for Fmaj7 in a song and compare"] },
+  { id:"power", level:"l2", title:"Power chords and palm muting", min:15, body:`
+<p>A power chord is just two notes: a root and the note a fifth above (often with the octave). There is no major or minor, so it fits almost anywhere, and it sounds great with distortion.</p>
+{{chords:E5,A5,D5,G5}}
+<h3>The movable shape</h3>
+<p>Put your 1st finger on the low E or A string, and your 3rd finger two frets higher on the next string. Slide that shape anywhere. The note under your first finger names the chord.</p>
+{{fret:rootNotes}}
+<h3>Palm muting</h3>
+<p>Rest the edge of your picking hand on the strings right where they leave the bridge. Too far forward and the notes die; too far back and they ring. Aim for a tight, punchy "chug".</p>
+{{tab:power}}`,
+    tasks:["Play the riff above with palm muting","Name the power chord at the 5th fret of the low E (A5) and 3rd fret of the A string (C5)"] },
+  { id:"capo", level:"l2", title:"Capo and transposing", min:10, body:`
+<p>A capo moves the nut up the neck so you can keep easy open shapes but play in a higher key. Each fret raises everything by one semitone.</p>
+<div class="tablewrap"><table class="keys"><thead><tr><th>Capo</th><th>G shape sounds as</th><th>C shape</th><th>D shape</th><th>Em shape</th></tr></thead><tbody>
+<tr><td>1</td><td>Ab</td><td>C#</td><td>Eb</td><td>Fm</td></tr><tr><td>2</td><td>A</td><td>D</td><td>E</td><td>F#m</td></tr><tr><td>3</td><td>Bb</td><td>Eb</td><td>F</td><td>Gm</td></tr><tr><td>4</td><td>B</td><td>E</td><td>F#</td><td>G#m</td></tr><tr><td>5</td><td>C</td><td>F</td><td>G</td><td>Am</td></tr><tr><td>7</td><td>D</td><td>G</td><td>A</td><td>Bm</td></tr></tbody></table></div>
+<p>When a song is too low or too high for your voice, use the <b>transpose</b> buttons in the songbook, then either learn the new chords or use a capo to keep the familiar shapes.</p>
+<p class="note">Rule of thumb: if a transposed song is full of barre chords, transpose it back down and put a capo on instead.</p>`,
+    tasks:["Play Amazing Grace with capo 2 and sing along","Transpose a song in the songbook so it suits your voice"] },
+  { id:"barre", level:"l3", title:"Conquering the F chord", min:25, body:`
+<p>F is where many players stall. It takes a few weeks of short daily practice, not one long session. Work up to it with stepping stones.</p>
+<h3>Stepping stones</h3>
+<ol><li><b>Fmaj7</b>: no barre, same top-string shape. Get comfortable with the stretch.</li><li><b>Mini F</b> (xx3211): your 1st finger flattens across only the top two strings.</li><li><b>Full F</b>: the whole barre. Then <b>Bm</b>, which is the same idea on the A string.</li></ol>
+{{chords:Fmaj7,F,Bm}}
+<h3>What actually makes a barre ring</h3>
+<ul><li>Roll the 1st finger slightly onto its bony outer edge. The soft middle side has creases that leave strings dead.</li><li>Place the barre right behind the fret, not in the middle.</li><li>Pull back with your arm rather than squeezing harder with your thumb. Let your arm's weight do the work.</li><li>Pluck string by string, find the dead one, adjust only that finger.</li></ul>
+{{prog:C,F,G,C}}
+<p class="note">Limit barre practice to 5–10 minutes at a time. Hand pain is a sign to rest, not to push harder.</p>`,
+    tasks:["All six strings ring on F when picked one at a time","C → F → G → C at 60 BPM, one strum per beat","Play House of the Rising Sun with the full F"] },
+  { id:"shapes", level:"l3", title:"Movable E and A shapes", min:20, body:`
+<p>A full barre chord is an open E or A chord with your first finger acting as the nut. Slide the shape up and you get every major and minor chord.</p>
+{{tab:shapes}}
+<ul><li><b>E-shape</b>: root on the 6th string. F = 1st fret, G = 3rd, A = 5th.</li><li><b>A-shape</b>: root on the 5th string. Bb = 1st fret, B = 2nd, C = 3rd, D = 5th.</li><li>Minor versions: E-shape lifts the 2nd finger (F → Fm). A-shape becomes the Bm shape.</li></ul>
+<h3>Learn the notes on the bottom two strings</h3>
+<p>You only need the natural notes on the E and A strings to find any barre chord. The dots on frets 3, 5, 7, 9 and 12 are your landmarks.</p>
+{{fret:rootNotes}}
+{{chords:F#m,C#m,Bb}}`,
+    tasks:["Find G, A and C as E-shape barre chords","Find C, D and E as A-shape barre chords","Play F#m and C#m in a song"] },
+  { id:"finger", level:"l4", title:"Fingerpicking patterns", min:25, body:`
+<p>Assign your picking-hand fingers to strings: <b>thumb (T)</b> takes the bass strings, <b>index (i)</b> the G string, <b>middle (m)</b> the B string, <b>ring (a)</b> the high e.</p>
+<h3>The arpeggio: House of the Rising Sun</h3>
+<p>Bass note, then up the strings and back down. Six notes per chord, in 6/8 time.</p>
+{{tab:rising}}
+<h3>Travis picking</h3>
+<p>The thumb alternates between two bass strings on every beat while the fingers fill in between. Get the thumb on autopilot first: play only the bass notes until you can do it without thinking.</p>
+{{tab:travisC}}
+<p class="note">Slow is the shortcut. At 60 BPM a pattern you can play evenly is worth more than a fast messy one.</p>`,
+    tasks:["Play the Rising Sun arpeggio through all chords at 90 BPM","Keep the Travis thumb steady over C and G for one minute","Fingerpick Scarborough Fair with the arpeggio pattern"] },
+  { id:"penta", level:"l4", title:"Your first scale: A minor pentatonic", min:20, body:`
+<p>Five notes, two per string, in one box at the 5th fret. This is the scale behind most rock and blues solos, and it's the easiest way to start improvising.</p>
+{{fret:pentaAm}}
+<p>The brass dots are <b>A</b>, the root. Start and end your licks on them and you'll sound resolved.</p>
+{{tab:penta}}
+<h3>Practice plan</h3>
+<ol><li>Play it up and down with alternate picking (down-up-down-up) at 70 BPM.</li><li>Play over the 12-bar blues shuffle in the Songs tab, or have a friend strum Am – G.</li><li>Make up a 4-note phrase, repeat it, then change one note.</li></ol>`,
+    tasks:["Play the box up and down from memory","Play it evenly at 90 BPM with alternate picking","Improvise for two minutes over Am"] },
+  { id:"legato", level:"l4", title:"Hammer-ons, pull-offs, slides and bends", min:20, body:`
+<p>These techniques let you play notes without picking each one. Lines sound smoother and more like a voice.</p>
+<h3>Hammer-ons and pull-offs</h3>
+<p>Pick the first note only. Hammer the next finger down firmly, then pull it off with a small downward flick so the lower note sounds.</p>
+{{tab:legato}}
+<h3>Slides and bends</h3>
+<p>For slides keep the pressure on while moving. For bends, use three fingers together on the string and push it toward the ceiling until it reaches the target pitch.</p>
+{{tab:slides}}`,
+    tasks:["Each hammer-on is as loud as the picked note","Bend the G string at fret 9 up a whole step in tune"] },
+  { id:"keys", level:"l5", title:"Keys and chord families", min:20, body:`
+<p>In any major key, six chords belong together. They are numbered with Roman numerals. Learn this and you can guess the chords to most pop and folk songs.</p>
+<div class="tablewrap"><table class="keys"><thead><tr><th>Key</th><th>I</th><th>ii</th><th>iii</th><th>IV</th><th>V</th><th>vi</th></tr></thead><tbody>
+<tr><td><b>C</b></td><td>C</td><td>Dm</td><td>Em</td><td>F</td><td>G</td><td>Am</td></tr>
+<tr><td><b>G</b></td><td>G</td><td>Am</td><td>Bm</td><td>C</td><td>D</td><td>Em</td></tr>
+<tr><td><b>D</b></td><td>D</td><td>Em</td><td>F#m</td><td>G</td><td>A</td><td>Bm</td></tr>
+<tr><td><b>A</b></td><td>A</td><td>Bm</td><td>C#m</td><td>D</td><td>E</td><td>F#m</td></tr>
+<tr><td><b>E</b></td><td>E</td><td>F#m</td><td>G#m</td><td>A</td><td>B</td><td>C#m</td></tr></tbody></table></div>
+<h3>Progressions you'll hear everywhere</h3>
+<p><b>I – V – vi – IV</b> in G:</p>{{prog:G,D,Em,C}}
+<p><b>I – vi – IV – V</b>, the 50s progression, in C:</p>{{prog:C,Am,F,G}}
+<p><b>12-bar blues</b> in E uses I, IV and V: four bars of E, two of A, two of E, then B7, A, E, B7.</p>{{tab:shuffle}}`,
+    tasks:["Play I – V – vi – IV in G, C and D","Play the 12-bar blues shuffle all the way through","Work out which key a song in the songbook is in"] },
+];
+
+/* ===================== built-in songbook ===================== */
+// All built-ins are traditional / public-domain songs or original exercises.
+const BUILTIN = [
+  { id:"b-rising", title:"House of the Rising Sun", artist:"Traditional", key:"Am", capo:0, level:"Intermediate", time:"6/8", strum:"Arpeggio: bass – 3 – 2 – 1 – 2 – 3 (see tab)", body:
+`{c: Fingerpick each chord as a six-note arpeggio}
+[Intro]
+Am          C           D           F           E
+e|-------0----|-------0----|-------2----|-------1----|-------0----|
+B|-----1---1--|-----1---1--|-----3---3--|-----1---1--|-----0---0--|
+G|---2-------2|---0-------0|---2-------2|---2-------2|---1-------1|
+D|------------|------------|-0----------|-3----------|------------|
+A|-0----------|-3----------|------------|------------|------------|
+E|------------|------------|------------|------------|-0----------|
+
+[Verse 1]
+There [Am]is a [C]house in [D]New Or[F]leans
+They [Am]call the [C]Rising [E]Sun [E]
+And it's [Am]been the [C]ruin of [D]many a poor [F]boy
+And [Am]God, I [E]know I'm [Am]one [E]
+
+[Verse 2]
+My [Am]mother [C]was a [D]tailor [F]
+She [Am]sewed my [C]new blue [E]jeans [E]
+My [Am]father [C]was a [D]gamblin' [F]man
+[Am]Down in [E]New Or[Am]leans [E]` },
+  { id:"b-amazing", title:"Amazing Grace", artist:"John Newton (1779)", key:"G", capo:0, level:"Easy", time:"3/4", strum:"D . D . D U  (waltz)", body:
+`[Verse 1]
+A[G]mazing [G7]grace, how [C]sweet the [G]sound
+That saved a wretch like [D]me [D7]
+I [G]once was [G7]lost, but [C]now am [G]found
+Was [Em]blind but [D]now I [G]see
+
+[Verse 2]
+'Twas [G]grace that [G7]taught my [C]heart to [G]fear
+And grace my fears re[D]lieved [D7]
+How [G]precious [G7]did that [C]grace ap[G]pear
+The [Em]hour I [D]first be[G]lieved` },
+  { id:"b-scarborough", title:"Scarborough Fair", artist:"Traditional", key:"Am", capo:0, level:"Intermediate", time:"3/4", strum:"Fingerpick: bass – 3 – 2 – 1 – 2 – 3, or D . D U D U", body:
+`[Verse 1]
+[Am]Are you going to [G]Scarborough [Am]Fair?
+[C]Parsley, [Am]sage, rose[D]mary and [Am]thyme
+Re[Am]member [C]me to one who lives [G]there
+[Am]She once was a [G]true love of [Am]mine
+
+[Verse 2]
+[Am]Tell her to make me a [G]cambric [Am]shirt
+[C]Parsley, [Am]sage, rose[D]mary and [Am]thyme
+With[Am]out no [C]seams nor needle[G]work
+[Am]Then she'll be a [G]true love of [Am]mine` },
+  { id:"b-greensleeves", title:"Greensleeves", artist:"Traditional", key:"Am", capo:0, level:"Intermediate", time:"6/8", strum:"D . . D U D  (two strums per bar)", body:
+`[Verse]
+A[Am]las, my [G]love, you [Am]do me [E]wrong
+To [Am]cast me [G]off dis[Am]courteous[E]ly
+For [Am]I have [G]loved you [Am]well and [E]long
+De[Am]lighting [G]in your [E]compa[Am]ny
+
+[Chorus]
+[C]Greensleeves was [G]all my [Am]joy, and [E]
+[C]Greensleeves was my [G]de[E]light
+[C]Greensleeves was my [G]heart of [Am]gold
+And [Am]who but my [E]lady [Am]Greensleeves` },
+  { id:"b-wayfaring", title:"Wayfaring Stranger", artist:"Traditional", key:"Em", capo:0, level:"Intermediate", time:"3/4", strum:"D . D U D U", body:
+`[Verse]
+I am a [Em]poor wayfaring stranger
+[Am]Traveling [Em]through this world of woe
+Yet there's no [Em]sickness, toil nor danger
+In that bright [B7]land to which I [Em]go
+
+[Chorus]
+I'm going [C]there to see my [G]father
+I'm going [C]there no more to [B7]roam
+I'm only [Em]going over [Am]Jordan
+I'm only [Em]going [B7]over [Em]home` },
+  { id:"b-water", title:"The Water Is Wide", artist:"Traditional", key:"G", capo:0, level:"Easy", time:"4/4", strum:"D . D U . U D U", body:
+`[Verse 1]
+The [G]water is [C]wide, I [G]can't cross o'er
+And [Em]neither [Am]have I [D]wings to fly
+[G]Give me a [C]boat that can [G]carry two
+And [Em]both shall [C]row, my [D]love and [G]I
+
+[Verse 2]
+A [G]ship there [C]is, and she [G]sails the sea
+She's [Em]loaded [Am]deep as [D]deep can be
+But [G]not so [C]deep as the [G]love I'm in
+I [Em]know not [C]how I [D]sink or [G]swim` },
+  { id:"b-susanna", title:"Oh! Susanna", artist:"Stephen Foster (1848)", key:"D", capo:0, level:"Easy", time:"4/4", strum:"D . D U . U D U", body:
+`[Verse 1]
+I [D]come from Alabama with my [A]banjo on my [D]knee
+I'm going to Louisiana, my [A]true love for to [D]see
+
+[Chorus]
+[G]Oh, Su[D]sanna, oh don't you [A]cry for me
+For I [D]come from Alabama with my [A]banjo on my [D]knee
+
+[Verse 2]
+It [D]rained all night the day I left, the [A]weather it was [D]dry
+The sun so hot I froze to death, Su[A]sanna, don't you [D]cry` },
+  { id:"b-redriver", title:"Red River Valley", artist:"Traditional", key:"C", capo:0, level:"Intermediate", time:"4/4", strum:"Bass – D U – bass – D U", body:
+`[Verse]
+From this [C]valley they say you are going
+We will [G7]miss your bright eyes and sweet [C]smile
+For they say you are taking the [C7]sunshine
+That has [F]brightened our [G7]pathway a[C]while
+
+[Chorus]
+Come and [C]sit by my side if you love me
+Do not [G7]hasten to bid me a[C]dieu
+But re[C]member the Red River [C7]Valley
+And the [F]cowboy who [G7]loved you so [C]true` },
+  { id:"b-auld", title:"Auld Lang Syne", artist:"Robert Burns (1788)", key:"G", capo:0, level:"Easy", time:"4/4", strum:"D . D U . U D U", body:
+`[Verse]
+Should [G]auld acquaintance be for[D]got
+And [G]never brought to [C]mind?
+Should [G]auld acquaintance be for[D]got
+And [Em]days of [C]auld [D]lang [G]syne
+
+[Chorus]
+For [G]auld lang syne, my [D]dear
+For [G]auld lang [C]syne
+We'll [G]take a cup o' kindness [D]yet
+For [Em]auld [C]lang [D]syne [G]` },
+  { id:"b-ode", title:"Ode to Joy (melody)", artist:"Ludwig van Beethoven", key:"C", capo:0, level:"Easy", time:"4/4", strum:"Single notes, one per beat", body:
+`{c: Melody on the top two strings. Use fingers 1 and 3.}
+[Line 1]
+e|-0-0-1-3-|-3-1-0---|-------0-|-0-------|
+B|---------|-------3-|-1-1-3---|---3-3---|
+
+[Line 2]
+e|-0-0-1-3-|-3-1-0---|-------0-|---------|
+B|---------|-------3-|-1-1-3---|-3-1-1---|
+
+[Accompaniment]
+| C . . . | G . . . | C . . . | G . . . |
+| C . . . | G . . . | C . . . | G . C . |` },
+  { id:"b-blues", title:"Twelve-Bar Shuffle in E", artist:"Fretwise exercise", key:"E", capo:0, level:"Intermediate", time:"4/4 swing", strum:"Shuffle: bass + 5th / 6th, swung eighths", body:
+`{c: The classic blues rhythm. Swing the eighths: long-short, long-short.}
+[Riff on E]
+e|------------------|
+B|------------------|
+G|------------------|
+D|------------------|
+A|-2-2-4-4-2-2-4-4--|
+E|-0-0-0-0-0-0-0-0--|
+
+[Form]
+| E    | E    | E    | E    |
+| A    | A    | E    | E    |
+| B7   | A    | E    | B7   |
+{c: Move the same riff to the A string for A, and to the A string 2nd fret for B7.}` },
+];
+
+/* ===================== song text parsing ===================== */
+const TAB_LINE = /^\s*[eEBGDAbgda][#b]?\s*[|:]?[-0-9hpbrxs\/\\~|()<>.^*=t ]*-{3,}[-0-9hpbrxs\/\\~|()<>.^*=t ]*\|?\s*$/;
+const SECTION = /^\s*\[?\s*(intro|verse|chorus|pre-?chorus|bridge|outro|solo|interlude|riff|instrumental|coda|tag|refrain|line|form|accompaniment|ending|break)\b[^\]]*\]?\s*:?\s*$/i;
+const BAR_TOKENS = /^(\||\|\||:\|\||\|\|:|\.|x\d+|\d+x|%|-|\/|N\.?C\.?|\(|\)|\*)$/i;
+function isChordLine(line){
+  const toks = line.trim().split(/\s+/).filter(Boolean); if (!toks.length) return false;
+  let chords = 0;
+  for (const t of toks){ const c = t.replace(/^[|(]+|[|)]+$/g, "").replace(/\*$/, ""); if (!c) continue; if (isChord(c)) chords++; else if (!BAR_TOKENS.test(t)) return false; }
+  return chords > 0;
+}
+function transposeChordLine(line, st){
+  if (!st) return line;
+  let out = ""; const re = /\S+/g; let m;
+  while ((m = re.exec(line))){
+    const tok = m[0], core = tok.match(/^([|(]*)(.*?)([|)*]*)$/);
+    const nt = core[1] + (isChord(core[2]) ? transposeChord(core[2], st) : core[2]) + core[3];
+    let pos = m.index; if (out.length && pos < out.length + 1) pos = out.length + 1;
+    out = out.padEnd(pos, " ") + nt;
+  }
+  return out;
+}
+function inlineToPair(line){
+  // "[Am]There is a [C]house" -> {chords:"Am       C", lyrics:"There is a house"}
+  let chords = "", lyrics = ""; const re = /\[([^\]]+)\]/g; let last = 0, m;
+  while ((m = re.exec(line))){
+    lyrics += line.slice(last, m.index); last = re.lastIndex;
+    let pos = lyrics.length; if (chords.length && chords.length >= pos) { pos = chords.length + 1; lyrics = lyrics.padEnd(pos, " "); }
+    chords = chords.padEnd(pos, " ") + m[1];
+  }
+  lyrics += line.slice(last);
+  return { chords, lyrics };
+}
+const hasInline = line => /\[[A-G][^\]\s]{0,9}\]/.test(line) && !SECTION.test(line);
+// parse song body into renderable lines
+function parseSong(text, st = 0){
+  const out = []; const meta = {};
+  const lines = String(text).replace(/\r\n?/g, "\n").replace(/\t/g, "    ").split("\n");
+  for (let raw of lines){
+    const dir = raw.match(/^\s*\{\s*([a-z_]+)\s*(?::\s*(.*?))?\s*\}\s*$/i);
+    if (dir){
+      const k = dir[1].toLowerCase(), v = dir[2] || "";
+      if (["c","comment","ci","comment_italic"].includes(k)) out.push({ t:"cmt", text:v });
+      else if (["soc","start_of_chorus"].includes(k)) out.push({ t:"sec", text:"Chorus" });
+      else if (["sov","start_of_verse"].includes(k)) out.push({ t:"sec", text:v || "Verse" });
+      else if (["sot","start_of_tab"].includes(k)) out.push({ t:"sec", text:v || "Tab" });
+      else if (["t","title","st","subtitle","artist","key","capo","tempo","time"].includes(k)) meta[k === "t" ? "title" : k === "st" ? "subtitle" : k] = v;
+      continue;
+    }
+    if (!raw.trim()){ out.push({ t:"blank" }); continue; }
+    if (TAB_LINE.test(raw)){ out.push({ t:"tab", text:raw }); continue; }
+    if (SECTION.test(raw)){ out.push({ t:"sec", text:raw.trim().replace(/^\[|\]$|:$/g, "").trim() }); continue; }
+    if (hasInline(raw)){
+      const { chords, lyrics } = inlineToPair(raw);
+      out.push({ t:"chords", text: transposeChordLine(chords, st) });
+      if (lyrics.trim()) out.push({ t:"lyric", text:lyrics });
+      continue;
+    }
+    if (isChordLine(raw)){ out.push({ t:"chords", text: transposeChordLine(raw, st) }); continue; }
+    out.push({ t:"lyric", text:raw });
+  }
+  // mark tab runs
+  for (let i = 0; i < out.length; i++) if (out[i].t === "tab"){ out[i].first = !out[i-1] || out[i-1].t !== "tab"; out[i].last = !out[i+1] || out[i+1].t !== "tab"; }
+  return { lines: out, meta };
+}
+function chordsInSong(text, st = 0){
+  const set = [];
+  for (const l of parseSong(text, st).lines) if (l.t === "chords") for (const tok of l.text.split(/\s+/)){ const c = tok.replace(/^[|(]+|[|)*]+$/g, ""); if (isChord(c) && !set.includes(c)) set.push(c); }
+  return set;
+}
+function renderSheet(text, st = 0){
+  const { lines } = parseSong(text, st);
+  return lines.map(l => {
+    if (l.t === "blank") return `<div class="ln"> </div>`;
+    if (l.t === "sec") return `<div class="ln sec">${esc(l.text)}</div>`;
+    if (l.t === "cmt") return `<div class="ln cmt">${esc(l.text)}</div>`;
+    if (l.t === "tab") return `<div class="ln tabln${l.first ? " first" : ""}${l.last ? " last" : ""}">${esc(l.text)}</div>`;
+    if (l.t === "chords") return `<div class="ln ch">${l.text.replace(/(\S+)|(\s+)/g, (m, tok) => { if (!tok) return m; const c = tok.replace(/^[|(]+|[|)*]+$/g, ""); return isChord(c) ? esc(tok).replace(esc(c), `<button data-chord="${esc(c)}">${esc(c)}</button>`) : esc(tok); })}</div>`;
+    return `<div class="ln">${esc(l.text)}</div>`;
+  }).join("");
+}
+
+/* ===================== storage (Claude db when available, else browser) ===================== */
+const Store = {
+  mode:"local", db:null, uidv:null, songs:[], progress:{ done:{}, tasks:{}, records:{} }, ready:false, listeners:[],
+  async init(){
+    this.songs = lsGet("fw.songs", []); this.progress = Object.assign({ done:{}, tasks:{}, records:{} }, lsGet("fw.progress", {}));
+    this.ready = true; this.emit();
+    if (!window.claude || typeof window.claude.use !== "function") return;
+    try {
+      const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+      if (!db || !user) return;
+      const id = await user.id(); if (!id) return;
+      this.db = db; this.uidv = id; this.mode = "cloud";
+      const coll = db.collection("data/users/" + id);
+      const timer = setTimeout(() => toast("Your saved songs can't be reached yet. Showing this device's copy."), 10000);
+      coll.onSnapshot(snap => {
+        clearTimeout(timer);
+        const songs = [], imgs = {}; let prog = null;
+        for (const d of snap.docs){ const v = d.data(); if (!v) continue; if (d.id.startsWith("song_")) songs.push(v); else if (d.id === "progress") prog = v; }
+        songs.sort((a,b) => (b.updated || 0) - (a.updated || 0));
+        // first cloud load: carry over songs saved only in this browser
+        if (!this._merged){ this._merged = true; const local = lsGet("fw.songs", []); for (const s of local) if (!songs.find(x => x.id === s.id)) { songs.push(s); this._write("song_" + s.id, s); } }
+        this.songs = songs; if (prog) this.progress = Object.assign({ done:{}, tasks:{}, records:{} }, prog);
+        this.emit();
+      }, () => { clearTimeout(timer); toast("Cloud sync stopped. Changes are saved on this device."); this.mode = "local"; });
+    } catch { /* stay local */ }
+  },
+  q:Promise.resolve(),
+  _write(docId, data){ if (!this.db) return; const ref = this.db.collection("data/users/" + this.uidv).doc(docId); this.q = this.q.then(() => data == null ? ref.delete() : ref.set(data)).catch(() => toast("Couldn't sync that change. It's kept on this device.")); },
+  _imgs(id){ return lsGet("fw.img." + id, null); },
+  async images(song){
+    if (!song.images || !song.images.length) return [];
+    const out = [];
+    for (const imgId of song.images){
+      let src = this._imgs(imgId);
+      if (!src && this.db){ try { const d = await this.db.collection("data/users/" + this.uidv).doc("img_" + imgId).get(); if (d.exists) src = d.data().src; } catch {} }
+      if (src) out.push(src);
+    }
+    return out;
+  },
+  saveImage(src){ const id = uid(); lsSet("fw.img." + id, src); this._write("img_" + id, { src }); return id; },
+  saveSong(song){
+    song.updated = Date.now(); const i = this.songs.findIndex(s => s.id === song.id);
+    if (i >= 0) this.songs[i] = song; else this.songs.unshift(song);
+    if (!lsSet("fw.songs", this.songs) && this.mode === "local") toast("This browser's storage is full. Remove screenshots or export a backup.");
+    this._write("song_" + song.id, song); this.emit();
+  },
+  deleteSong(id){
+    const s = this.songs.find(x => x.id === id);
+    if (s && s.images) for (const im of s.images){ try { localStorage.removeItem("fw.img." + im); } catch {} this._write("img_" + im, null); }
+    this.songs = this.songs.filter(x => x.id !== id); lsSet("fw.songs", this.songs); this._write("song_" + id, null); this.emit();
+  },
+  saveProgress(){ lsSet("fw.progress", this.progress); clearTimeout(this._pt); this._pt = setTimeout(() => this._write("progress", JSON.parse(JSON.stringify(this.progress))), 800); },
+  on(fn){ this.listeners.push(fn); }, emit(){ this.listeners.forEach(f => f()); },
+};
+
+/* ===================== Claude helpers (only inside Claude) ===================== */
+const Claude = {
+  _s:undefined,
+  async sample(){ if (this._s !== undefined) return this._s; if (!window.claude?.use) return this._s = null; try { this._s = await window.claude.use("sample"); } catch { this._s = null; } return this._s; },
+  async canImages(){ const s = await this.sample(); if (!s) return false; try { return !!(await s.limits()).images; } catch { return false; } },
+};
+const PROMPT_FORMAT = `Format rules for "body":
+- Chords-over-lyrics: put each chord line directly above its lyric line, aligned with spaces (monospace).
+- Section labels on their own line in brackets, e.g. [Verse 1], [Chorus], [Intro], [Solo].
+- Guitar tab as ASCII, six lines starting e| B| G| D| A| E| (high to low). Keep fret numbers and techniques (h p / \\ b ~ x) exactly.
+- Use standard chord names (Am, F#m7, Cadd9, D/F#). Keep strumming or picking notes as a line like {c: Strum D DU UDU}.
+- Transcribe only what is in the source. Do not add verses, chords or tabs that are not there. If something is unreadable write (?) in its place.`;
+
+/* ===================== router / shell ===================== */
+const VIEWS = [["tuner","Tune","tune"],["learn","Learn","learn"],["practice","Practice","practice"],["chords","Chords","chords"],["songs","Songs","songs"]];
+const state = { view:"songs", sub:null, transpose:0, font:15, scroll:0 };
+function navTo(view, sub = null){
+  stopAll(); state.view = view; state.sub = sub;
+  try { const want = "#" + view; if (location.hash !== want) history.replaceState(null, "", want); } catch {}
+  render(); window.scrollTo(0, 0);
+}
+function stopAll(){ Tuner.stop(); Metro.stop(); Trainer.stop(); StrumPlayer.stop(); AutoScroll.stop(); }
+function renderTabs(){
+  $("#tabs").innerHTML = VIEWS.map(([id, label, ic]) => `<button class="tab" data-nav="${id}" ${state.view === id ? 'aria-current="page"' : ""}>${ICON[ic]}<span>${label}</span></button>`).join("");
+}
+document.addEventListener("click", e => { const n = e.target.closest("[data-nav]"); if (n) navTo(n.dataset.nav); });
+window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (VIEWS.some(x => x[0] === v) && v !== state.view) navTo(v); });
+function render(){
+  renderTabs();
+  const app = $("#app"); app.innerHTML = "";
+  const fn = { tuner:viewTuner, learn:viewLearn, practice:viewPractice, chords:viewChords, songs:viewSongs }[state.view];
+  app.append(fn());
+}
+
+/* ===================== TUNER ===================== */
+const Tuner = {
+  running:false, stream:null, analyser:null, buf:null, raf:0, hist:[], tuning:"Standard", target:null,
+  async start(onUpdate, onError){
+    const ctx = Audio.ensure();
+    if (!navigator.mediaDevices?.getUserMedia){ onError("nomic"); return; }
+    try { this.stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:false } }); }
+    catch (e){ onError(e && e.name === "NotAllowedError" ? "denied" : "nomic"); return; }
+    const src = ctx.createMediaStreamSource(this.stream); this.analyser = ctx.createAnalyser(); this.analyser.fftSize = 4096; src.connect(this.analyser);
+    this.buf = new Float32Array(this.analyser.fftSize); this.running = true; this.hist = [];
+    const loop = () => { if (!this.running) return; this.analyser.getFloatTimeDomainData(this.buf); const f = detectPitch(this.buf, ctx.sampleRate);
+      if (f > 0){ this.hist.push(f); if (this.hist.length > 5) this.hist.shift(); const sorted = [...this.hist].sort((a,b) => a-b); onUpdate(sorted[Math.floor(sorted.length/2)]); } else onUpdate(-1);
+      this.raf = requestAnimationFrame(loop); };
+    loop();
+  },
+  stop(){ this.running = false; cancelAnimationFrame(this.raf); if (this.stream){ this.stream.getTracks().forEach(t => t.stop()); this.stream = null; } },
+};
+function detectPitch(buf, sr){
+  let n = buf.length, rms = 0; for (let i = 0; i < n; i++) rms += buf[i]*buf[i]; rms = Math.sqrt(rms / n); if (rms < 0.008) return -1;
+  let r1 = 0, r2 = n - 1; const th = 0.2;
+  for (let i = 0; i < n/2; i++) if (Math.abs(buf[i]) < th){ r1 = i; break; }
+  for (let i = 1; i < n/2; i++) if (Math.abs(buf[n-i]) < th){ r2 = n - i; break; }
+  const b = buf.slice(r1, r2); n = b.length; if (n < 64) return -1;
+  const maxLag = Math.min(n - 1, Math.floor(sr / 60)), minLag = Math.floor(sr / 1400);
+  const c = new Float32Array(maxLag + 1);
+  for (let lag = minLag; lag <= maxLag; lag++){ let s = 0; for (let i = 0; i < n - lag; i++) s += b[i] * b[i + lag]; c[lag] = s; }
+  let d = minLag; while (d < maxLag && c[d] > c[d + 1]) d++;
+  let maxV = -1, maxP = -1; for (let i = d; i <= maxLag; i++) if (c[i] > maxV){ maxV = c[i]; maxP = i; }
+  if (maxP <= 0) return -1;
+  // prefer the first strong peak (avoid octave errors)
+  for (let i = d; i < maxP; i++) if (c[i] > c[i-1] && c[i] >= c[i+1] && c[i] > 0.9 * maxV){ maxP = i; break; }
+  const x1 = c[maxP-1] || 0, x2 = c[maxP], x3 = c[maxP+1] || 0, a = (x1 + x3 - 2*x2) / 2, bb = (x3 - x1) / 2;
+  const T = a ? maxP - bb / (2*a) : maxP; return sr / T;
+}
+function viewTuner(){
+  const el = h(`<section class="view">
+    <div><p class="eyebrow">Tuner</p><h1>Tune up</h1></div>
+    <div class="tuner">
+      <div class="gauge" id="gauge">
+        <div class="notename" id="tnote">–</div>
+        <svg viewBox="0 0 300 160" aria-hidden="true">
+          <path d="M30 150 A120 120 0 0 1 270 150" fill="none" stroke="#7a5646" stroke-width="10" stroke-linecap="round"/>
+          <path d="M136 31.5 A120 120 0 0 1 164 31.5" fill="none" stroke="#45c27a" stroke-width="10"/>
+          ${Array.from({length:11}, (_, i) => { const a = Math.PI * (1 - i/10); const r1 = i % 5 ? 104 : 98; return `<line x1="${150 + r1*Math.cos(a)}" y1="${150 - r1*Math.sin(a)}" x2="${150 + 112*Math.cos(a)}" y2="${150 - 112*Math.sin(a)}" stroke="#f4ead6" stroke-opacity=".55" stroke-width="2"/>`; }).join("")}
+          <text x="34" y="128" fill="#f4ead6" fill-opacity=".6" font-size="12" font-family="var(--f-mono)">♭ −50</text>
+          <text x="266" y="128" fill="#f4ead6" fill-opacity=".6" font-size="12" text-anchor="end" font-family="var(--f-mono)">+50 ♯</text>
+          <g id="needle" style="transform-origin:150px 150px;transition:transform .12s linear"><line x1="150" y1="150" x2="150" y2="40" stroke="#e0a646" stroke-width="4" stroke-linecap="round"/></g>
+          <circle cx="150" cy="150" r="9" fill="#e0a646"/>
+        </svg>
+        <div class="readout" id="tread">Press Start and play a string</div>
+        <div class="status" id="tstat"></div>
+        <div class="row"><button class="btn primary" id="tstart">${ICON.play}Start tuner</button></div>
+      </div>
+      <div class="panel" style="display:grid;gap:14px;align-content:start">
+        <div class="field"><label for="tuning">Tuning</label><select id="tuning">${Object.keys(TUNINGS).map(k => `<option ${k === Tuner.tuning ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+        <div><p class="small muted" style="margin-bottom:8px">Tap a string to hear its reference note. The tuner detects which string you're playing.</p><div class="strings" id="strs"></div></div>
+        <div class="note" id="tmsg">Tune <b>up</b> to the note: if you're sharp, drop below it first and come back up. Strings hold pitch better that way.</div>
+      </div>
+    </div></section>`);
+  const strs = $("#strs", el);
+  const drawStrings = (active = -1, ok = false) => { const t = TUNINGS[Tuner.tuning]; strs.innerHTML = t.map((m, i) => `<button class="strbtn ${i === active ? "on" : ""} ${i === active && ok ? "tuned" : ""}" data-i="${i}"><b>${NICE[m % 12]}</b><span>${6 - i} · ${midiToFreq(m).toFixed(1)}</span></button>`).join(""); };
+  drawStrings();
+  strs.addEventListener("click", e => { const b = e.target.closest(".strbtn"); if (!b) return; const m = TUNINGS[Tuner.tuning][+b.dataset.i]; Audio.pluck(midiToFreq(m), 0, 0.7, 3); });
+  $("#tuning", el).addEventListener("change", e => { Tuner.tuning = e.target.value; drawStrings(); });
+  const btn = $("#tstart", el), needle = $("#needle", el), tnote = $("#tnote", el), tread = $("#tread", el), tstat = $("#tstat", el);
+  let lastActive = -2, lastOk = null, silent = 0;
+  btn.addEventListener("click", () => {
+    if (Tuner.running){ Tuner.stop(); btn.innerHTML = ICON.play + "Start tuner"; tread.textContent = "Tuner stopped"; return; }
+    btn.innerHTML = ICON.stop + "Stop"; tread.textContent = "Listening…";
+    Tuner.start(f => {
+      if (f < 0){ if (++silent > 40){ tstat.textContent = ""; } return; } silent = 0;
+      const t = TUNINGS[Tuner.tuning]; const midi = 69 + 12 * Math.log2(f / 440);
+      let best = 0; t.forEach((m, i) => { if (Math.abs(midi - m) < Math.abs(midi - t[best])) best = i; });
+      const target = Math.abs(midi - t[best]) < 3.5 ? t[best] : Math.round(midi);
+      const cents = Math.max(-50, Math.min(50, (midi - target) * 100));
+      needle.style.transform = `rotate(${cents * 1.8}deg)`;
+      tnote.innerHTML = `${NICE[((target % 12) + 12) % 12]}<sub>${Math.floor(target/12) - 1}</sub>`;
+      tread.textContent = `${f.toFixed(1)} Hz · target ${midiToFreq(target).toFixed(1)} Hz · ${cents >= 0 ? "+" : ""}${cents.toFixed(0)} ¢`;
+      const ok = Math.abs(cents) < 5;
+      tstat.textContent = ok ? "In tune" : cents < 0 ? "Too low: tighten" : "Too high: loosen";
+      tstat.style.color = ok ? "#45c27a" : "#f4ead6";
+      const act = t.includes(target) ? t.indexOf(target) : -1;
+      if (act !== lastActive || ok !== lastOk){ drawStrings(act, ok); lastActive = act; lastOk = ok; }
+    }, err => {
+      btn.innerHTML = ICON.play + "Start tuner";
+      tread.textContent = err === "denied" ? "Microphone access was blocked." : "No microphone is available here.";
+      $("#tmsg", el).innerHTML = (window.claude
+        ? "The live tuner can't use the microphone inside Claude's viewer. Open the standalone app (<b>guitar/index.html</b>) in Chrome, Safari or Firefox to use it. "
+        : err === "denied" ? "Allow microphone access for this page in your browser's site settings, then press Start again. " : "Connect a microphone, or open this page over https or from your own computer. ")
+        + "Meanwhile, tune by ear: tap a string, then match it.";
+    });
+  });
+  return el;
+}
+
+/* ===================== METRONOME / strum player / trainer ===================== */
+const Metro = {
+  bpm:80, beats:4, running:false, next:0, beat:0, timer:0, onBeat:null,
+  start(onBeat){ const ctx = Audio.ensure(); if (!ctx) return; this.onBeat = onBeat; this.running = true; this.beat = 0; this.next = ctx.currentTime + 0.08;
+    this.timer = setInterval(() => { while (this.next < ctx.currentTime + 0.12){ const b = this.beat; Audio.click(this.next, b === 0); const delay = (this.next - ctx.currentTime) * 1000; setTimeout(() => this.running && this.onBeat && this.onBeat(b), Math.max(0, delay)); this.next += 60 / this.bpm; this.beat = (this.beat + 1) % this.beats; } }, 25); },
+  stop(){ this.running = false; clearInterval(this.timer); },
+};
+const StrumPlayer = {
+  running:false, timer:0,
+  start(pattern, chords, bpm, onStep){ // pattern: 8 chars D/U/.
+    const ctx = Audio.ensure(); if (!ctx) return; this.running = true; let step = 0, ci = 0; let next = ctx.currentTime + 0.1; const stepDur = 60 / bpm / 2;
+    this.timer = setInterval(() => { while (next < ctx.currentTime + 0.12){ const s = step % pattern.length; const c = chords[ci % chords.length]; const ch = pattern[s];
+      if (ch === "D") Audio.strum(c, { when: next - ctx.currentTime, vol: s === 0 ? 0.36 : 0.26, gap: 0.014, dur: 1.4 });
+      if (ch === "U") Audio.strum(c, { when: next - ctx.currentTime, up: true, vol: 0.2, gap: 0.012, dur: 1.2 });
+      if (s === 0 && pattern.length <= 6) Audio.click(next, false);
+      const d = (next - ctx.currentTime) * 1000, cs = s, cci = ci; setTimeout(() => this.running && onStep(cs, cci % chords.length), Math.max(0, d));
+      next += stepDur; step++; if (step % pattern.length === 0) ci++; } }, 25); },
+  stop(){ this.running = false; clearInterval(this.timer); },
+};
+const Trainer = { running:false, stop(){ this.running = false; Metro.stop(); } };
+const AutoScroll = { raf:0, on:false, speed:1, acc:0, last:0,
+  start(){ this.on = true; this.last = performance.now(); const step = t => { if (!this.on) return; const dt = t - this.last; this.last = t; this.acc += dt * this.speed * 0.012; if (this.acc >= 1){ window.scrollBy(0, Math.floor(this.acc)); this.acc -= Math.floor(this.acc); } if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2){ this.stop(); const b = $("#ascroll"); if (b) b.innerHTML = ICON.play + "Scroll"; } this.raf = requestAnimationFrame(step); }; this.raf = requestAnimationFrame(step); },
+  stop(){ this.on = false; cancelAnimationFrame(this.raf); } };
+
+function strumWidget(pattern, chords){
+  const el = h(`<div class="panel embed"><div class="row"><div class="strum" aria-label="Strum pattern"></div></div>
+    <div class="row"><button class="btn sm primary" data-act="play">${ICON.play}Play along</button><label class="small muted row" style="gap:6px">Tempo <input type="range" min="50" max="140" value="80" style="width:120px"> <span class="tv">80</span> BPM</label><span class="small muted">Chords: ${chords.map(esc).join(" – ")}</span></div></div>`);
+  const counts = pattern.length === 6 ? ["1","&","2","&","3","&"] : ["1","&","2","&","3","&","4","&"];
+  const box = $(".strum", el); box.innerHTML = [...pattern].map((c, i) => `<span class="${c !== "." ? "hit" : ""}">${c === "." ? "·" : c === "D" ? "↓" : "↑"}<small>${counts[i] || ""}</small></span>`).join("");
+  const range = $("input", el), tv = $(".tv", el); range.oninput = () => tv.textContent = range.value;
+  const btn = $("[data-act=play]", el); const cells = [...box.children];
+  btn.onclick = () => { if (StrumPlayer.running){ StrumPlayer.stop(); btn.innerHTML = ICON.play + "Play along"; cells.forEach(c => c.classList.remove("now")); return; }
+    StrumPlayer.stop(); StrumPlayer.start(pattern, chords, +range.value, (s) => { cells.forEach((c, i) => c.classList.toggle("now", i === s)); }); btn.innerHTML = ICON.stop + "Stop"; };
+  return el;
+}
+function progWidget(chords){
+  const el = h(`<div class="embed"><div class="chordstrip">${chords.map(chordCard).join("")}</div><div class="row"><button class="btn sm">${ICON.play}Play progression</button><span class="small muted">${chords.map(esc).join(" → ")}</span></div></div>`);
+  $("button.btn", el).onclick = () => { chords.forEach((c, i) => { Audio.strum(c, { when: i * 0.9 }); Audio.strum(c, { when: i * 0.9 + 0.45, up: true, vol: 0.2 }); }); };
+  return el;
+}
+function tabWidget(key){
+  const el = h(`<div class="embed"><div class="tabblock"><pre>${esc(TABS[key])}</pre></div></div>`);
+  if (TAB_AUDIO[key]){ const b = h(`<div class="row"><button class="btn sm">${ICON.play}Hear it</button></div>`); b.firstElementChild.onclick = () => { const { notes, bpm } = TAB_AUDIO[key](); Audio.playTabNotes(notes, bpm); }; el.append(b); }
+  return el;
+}
+function changesWidget(){
+  const all = Object.keys(CHORDS).filter(c => !/5$/.test(c));
+  const el = h(`<div class="panel embed"><h3>One-minute changes</h3>
+    <div class="row"><select id="cA">${all.map(c => `<option ${c === "C" ? "selected" : ""}>${c}</option>`).join("")}</select><span>↔</span><select id="cB">${all.map(c => `<option ${c === "G" ? "selected" : ""}>${c}</option>`).join("")}</select></div>
+    <div class="row"><div class="bpm" id="cTime">60</div><div class="grow"><p class="small muted">Press start, then switch back and forth. Tap <b>+1</b> for every clean change (or just count and type the total at the end).</p></div></div>
+    <div class="row"><button class="btn primary" id="cGo">${ICON.play}Start</button><button class="btn" id="cPlus" disabled>+1 change</button><span class="bpm" id="cCount" style="font-size:2rem">0</span></div>
+    <div class="row"><label class="small muted" for="cManual">Or enter your count</label><input type="number" id="cManual" min="0" max="200" style="width:90px"><button class="btn sm" id="cSave">Save score</button></div>
+    <div id="cRec" class="small muted"></div></div>`);
+  let count = 0, t = 0, iv = 0;
+  const key = () => [$("#cA", el).value, $("#cB", el).value].sort().join("↔");
+  const showRec = () => { const r = Store.progress.records[key()] || []; $("#cRec", el).innerHTML = r.length ? `Best for ${esc(key())}: <b>${Math.max(...r.map(x => x.n))}</b> · last ${r.slice(-5).map(x => x.n).join(", ")}` : `No scores yet for ${esc(key())}.`; };
+  const save = n => { const k = key(); (Store.progress.records[k] ||= []).push({ n, d: Date.now() }); Store.saveProgress(); showRec(); toast(`Saved ${n} changes`); };
+  $("#cA", el).onchange = $("#cB", el).onchange = showRec; showRec();
+  $("#cGo", el).onclick = () => { if (iv){ clearInterval(iv); iv = 0; $("#cGo", el).innerHTML = ICON.play + "Start"; $("#cPlus", el).disabled = true; return; }
+    count = 0; t = 60; $("#cCount", el).textContent = "0"; $("#cTime", el).textContent = "60"; $("#cPlus", el).disabled = false; $("#cGo", el).innerHTML = ICON.stop + "Stop"; Audio.ensure(); Audio.click(Audio.ctx.currentTime + 0.01, true);
+    iv = setInterval(() => { t--; $("#cTime", el).textContent = t; if (t <= 0){ clearInterval(iv); iv = 0; Audio.click(Audio.ctx.currentTime + 0.01, true); Audio.click(Audio.ctx.currentTime + 0.2, true); $("#cPlus", el).disabled = true; $("#cGo", el).innerHTML = ICON.play + "Start"; if (count) save(count); } }, 1000); };
+  $("#cPlus", el).onclick = () => { count++; $("#cCount", el).textContent = count; };
+  $("#cSave", el).onclick = () => { const n = parseInt($("#cManual", el).value, 10); if (n > 0) { save(n); $("#cManual", el).value = ""; } else toast("Enter how many changes you made"); };
+  return el;
+}
+
+/* ===================== LEARN ===================== */
+function lessonDone(id){ return !!Store.progress.done[id]; }
+function viewLearn(){
+  if (state.sub) return viewLesson(LESSONS.find(l => l.id === state.sub));
+  const total = LESSONS.length, done = LESSONS.filter(l => lessonDone(l.id)).length;
+  const next = LESSONS.find(l => !lessonDone(l.id));
+  const el = h(`<section class="view">
+    <div style="display:grid;gap:8px"><p class="eyebrow">Learning path</p><h1>Beyond the basic chords</h1>
+      <p class="muted" style="max-width:62ch">You can already play the open chords. This path builds rhythm, barre chords, fingerpicking and lead playing. Do one lesson a week and practise its tasks for 15–20 minutes a day.</p></div>
+    <div class="panel row"><div class="grow" style="display:grid;gap:8px"><div class="row" style="justify-content:space-between"><b>${done} of ${total} lessons complete</b>${next ? `<button class="btn sm primary" data-lesson="${next.id}">Continue: ${esc(next.title)}</button>` : `<span class="chip easy">Path complete</span>`}</div><div class="progress"><i style="width:${(done/total*100).toFixed(0)}%"></i></div></div></div>
+    <div class="levels">${LEVELS.map((lv, i) => { const ls = LESSONS.filter(l => l.level === lv.id); const d = ls.filter(l => lessonDone(l.id)).length;
+      return `<div class="level"><h2>${esc(lv.title)} <span class="chip ${d === ls.length ? "easy" : ""}">${d}/${ls.length}</span></h2><p class="muted small">${esc(lv.blurb)}</p>
+      <div class="lessons">${ls.map(l => `<button class="lcard ${lessonDone(l.id) ? "done" : ""}" data-lesson="${l.id}"><span class="num">Lesson ${LESSONS.indexOf(l) + 1} · ${l.min} min</span><h3>${esc(l.title)}</h3><span class="small muted">${l.tasks.length} practice goals</span></button>`).join("")}</div></div>`; }).join("")}</div>
+  </section>`);
+  el.addEventListener("click", e => { const b = e.target.closest("[data-lesson]"); if (b) navTo("learn", b.dataset.lesson); });
+  return el;
+}
+function viewLesson(l){
+  const idx = LESSONS.indexOf(l), nxt = LESSONS[idx + 1];
+  const el = h(`<section class="view lesson">
+    <div class="row"><button class="btn ghost sm" data-back>${ICON.back}All lessons</button></div>
+    <div style="display:grid;gap:6px"><p class="eyebrow">Lesson ${idx + 1} · ${esc(LEVELS.find(v => v.id === l.level).title)} · ${l.min} min</p><h1>${esc(l.title)}</h1></div>
+    <div class="prose" id="prose"></div>
+    <div class="panel" style="display:grid;gap:12px"><h3>Practice goals</h3><div class="tasks">${l.tasks.map((t, i) => { const k = l.id + ":" + i; return `<label><input type="checkbox" data-task="${k}" ${Store.progress.tasks[k] ? "checked" : ""}><span>${esc(t)}</span></label>`; }).join("")}</div>
+      <div class="row"><button class="btn ${lessonDone(l.id) ? "" : "primary"}" id="ldone">${lessonDone(l.id) ? "Mark as not done" : "Mark lesson complete"}</button>${nxt ? `<button class="btn ghost" data-lesson="${nxt.id}">Next: ${esc(nxt.title)} →</button>` : ""}</div></div>
+  </section>`);
+  // build prose with embeds
+  const prose = $("#prose", el); const parts = l.body.split(/(\{\{[a-z]+:[^}]*\}\})/);
+  let htmlBuf = "";
+  const flush = () => { if (htmlBuf.trim()){ const d = document.createElement("div"); d.style.display = "contents"; d.innerHTML = htmlBuf; prose.append(d); } htmlBuf = ""; };
+  for (const p of parts){
+    const m = p.match(/^\{\{([a-z]+):([^}]*)\}\}$/);
+    if (!m){ htmlBuf += p; continue; } flush();
+    const [, kind, arg] = m;
+    if (kind === "chords") prose.append(h(`<div class="chordstrip">${arg.split(",").map(chordCard).join("")}</div>`));
+    else if (kind === "tab") prose.append(tabWidget(arg));
+    else if (kind === "strum"){ const [pat, ch] = arg.split("|"); prose.append(strumWidget(pat, ch.split(","))); }
+    else if (kind === "prog") prose.append(progWidget(arg.split(",")));
+    else if (kind === "fret") prose.append(h(`<div class="fretwrap">${FRETBOARDS[arg]()}</div>`));
+    else if (kind === "tool" && arg === "changes") prose.append(changesWidget());
+  }
+  flush();
+  el.addEventListener("change", e => { const k = e.target.dataset.task; if (!k) return; Store.progress.tasks[k] = e.target.checked; if (l.tasks.every((_, i) => Store.progress.tasks[l.id + ":" + i]) && !lessonDone(l.id)){ Store.progress.done[l.id] = Date.now(); toast("All goals ticked. Lesson complete!"); $("#ldone", el).textContent = "Mark as not done"; $("#ldone", el).classList.remove("primary"); } Store.saveProgress(); });
+  $("#ldone", el).onclick = () => { if (lessonDone(l.id)) delete Store.progress.done[l.id]; else { Store.progress.done[l.id] = Date.now(); toast("Lesson complete"); } Store.saveProgress(); const b = $("#ldone", el); b.textContent = lessonDone(l.id) ? "Mark as not done" : "Mark lesson complete"; b.classList.toggle("primary", !lessonDone(l.id)); };
+  $("[data-back]", el).onclick = () => navTo("learn");
+  el.addEventListener("click", e => { const b = e.target.closest("[data-lesson]"); if (b) navTo("learn", b.dataset.lesson); });
+  return el;
+}
+
+/* ===================== PRACTICE ===================== */
+function viewPractice(){
+  const el = h(`<section class="view">
+    <div><p class="eyebrow">Practice tools</p><h1>Practice room</h1></div>
+    <div class="practice">
+      <div class="panel" style="display:grid;gap:14px;align-content:start">
+        <h2>Metronome</h2>
+        <div class="row"><div class="bpm" id="mBpm">${Metro.bpm}</div><span class="muted">BPM</span><div class="grow"></div><div class="beats" id="mBeats"></div></div>
+        <input type="range" id="mRange" min="40" max="200" value="${Metro.bpm}" aria-label="Tempo">
+        <div class="row"><div class="seg" id="mSig">${[2,3,4,6].map(n => `<button aria-pressed="${n === Metro.beats}" data-n="${n}">${n}/4</button>`).join("")}</div><div class="grow"></div>
+        <button class="btn sm" id="mMinus">−5</button><button class="btn sm" id="mPlusB">+5</button><button class="btn sm" id="mTap">Tap</button></div>
+        <button class="btn primary" id="mGo">${ICON.play}Start</button>
+      </div>
+      <div class="panel" style="display:grid;gap:14px;align-content:start">
+        <h2>Chord switch trainer</h2>
+        <p class="small muted">Shows a random chord from your list every few beats, with the next one previewed. Change before the click.</p>
+        <div class="field"><label for="tList">Chords (comma separated)</label><input type="text" id="tList" value="${esc(lsGet("fw.trainer", "G, C, D, Em, Am, F"))}"></div>
+        <div class="row"><div class="seg" id="tEvery">${[2,4,8].map(n => `<button aria-pressed="${n === 4}" data-n="${n}">every ${n} beats</button>`).join("")}</div></div>
+        <div class="flash"><div class="small muted" id="tNext">Next: –</div><div class="big" id="tNow">–</div><div id="tDia"></div></div>
+        <button class="btn primary" id="tGo">${ICON.play}Start trainer</button>
+      </div>
+    </div>
+  </section>`);
+  el.append(changesWidget());
+  const beatsEl = $("#mBeats", el); const drawBeats = (on = -1) => beatsEl.innerHTML = Array.from({ length: Metro.beats }, (_, i) => `<i class="${i === on ? "on" : ""} ${i === 0 ? "acc" : ""}"></i>`).join(""); drawBeats();
+  const setBpm = v => { Metro.bpm = Math.max(40, Math.min(220, v)); $("#mBpm", el).textContent = Metro.bpm; $("#mRange", el).value = Metro.bpm; };
+  $("#mRange", el).oninput = e => setBpm(+e.target.value);
+  $("#mMinus", el).onclick = () => setBpm(Metro.bpm - 5); $("#mPlusB", el).onclick = () => setBpm(Metro.bpm + 5);
+  let taps = []; $("#mTap", el).onclick = () => { const t = performance.now(); taps = taps.filter(x => t - x < 3000); taps.push(t); if (taps.length > 1){ const avg = (taps[taps.length-1] - taps[0]) / (taps.length - 1); setBpm(Math.round(60000 / avg)); } };
+  $("#mSig", el).onclick = e => { const b = e.target.closest("button"); if (!b) return; Metro.beats = +b.dataset.n; [...$("#mSig", el).children].forEach(x => x.setAttribute("aria-pressed", x === b)); drawBeats(); };
+  const mGo = $("#mGo", el), tGo = $("#tGo", el);
+  mGo.onclick = () => { if (Metro.running && !Trainer.running){ Metro.stop(); mGo.innerHTML = ICON.play + "Start"; drawBeats(); return; } stopTrainerUI(); Metro.start(b => drawBeats(b)); mGo.innerHTML = ICON.stop + "Stop"; };
+  let every = 4; $("#tEvery", el).onclick = e => { const b = e.target.closest("button"); if (!b) return; every = +b.dataset.n; [...$("#tEvery", el).children].forEach(x => x.setAttribute("aria-pressed", x === b)); };
+  const stopTrainerUI = () => { if (Trainer.running){ Trainer.stop(); tGo.innerHTML = ICON.play + "Start trainer"; } if (Metro.running){ Metro.stop(); mGo.innerHTML = ICON.play + "Start"; } };
+  tGo.onclick = () => {
+    if (Trainer.running){ stopTrainerUI(); drawBeats(); return; }
+    stopTrainerUI();
+    const list = $("#tList", el).value.split(/[,\s]+/).map(s => s.trim()).filter(isChord); if (list.length < 2){ toast("Enter at least two chord names"); return; }
+    lsSet("fw.trainer", list.join(", "));
+    const pick = prev => { let c; do { c = list[Math.floor(Math.random() * list.length)]; } while (c === prev && list.length > 1); return c; };
+    let now = pick(), next = pick(now), count = 0;
+    const show = () => { $("#tNow", el).textContent = now; $("#tNext", el).textContent = "Next: " + next; $("#tDia", el).innerHTML = chordSVG(now, shapeFor(now)); };
+    show(); Trainer.running = true; tGo.innerHTML = ICON.stop + "Stop trainer"; mGo.innerHTML = ICON.stop + "Stop";
+    Metro.start(b => { drawBeats(b); count++; if (count > every && (count - 1) % every === 0){ now = next; next = pick(now); show(); } });
+  };
+  return el;
+}
+
+/* ===================== CHORDS ===================== */
+function viewChords(){
+  const el = h(`<section class="view">
+    <div><p class="eyebrow">Chord library</p><h1>Chords</h1><p class="muted">Tap any chord to hear it. Numbers in the dots are fingers: 1 index, 2 middle, 3 ring, 4 pinky.</p></div>
+    <div class="panel row"><div class="field grow"><label for="cfind">Look up any chord</label><input type="search" id="cfind" placeholder="e.g. C#m, Gm, Bb7, F#"></div><div id="cfound"></div></div>
+    ${CHORD_GROUPS.map(([g, list]) => `<div style="display:grid;gap:10px"><h2>${esc(g)}</h2><div class="chordgrid">${list.map(chordCard).join("")}</div></div>`).join("")}
+  </section>`);
+  const out = $("#cfound", el);
+  $("#cfind", el).oninput = e => { const v = e.target.value.trim(); if (!v){ out.innerHTML = ""; return; } const n = v[0].toUpperCase() + v.slice(1); out.innerHTML = isChord(n) ? `<div style="width:120px">${chordCard(n)}</div>` : `<span class="small muted">Type a chord like Gm or C#7</span>`; };
+  return el;
+}
+
+/* ===================== SONGS ===================== */
+const allSongs = () => [...Store.songs.map(s => ({ ...s, user:true })), ...BUILTIN];
+function viewSongs(){
+  if (state.sub === "new") return viewEditor(null);
+  if (state.sub && state.sub.startsWith("edit:")) return viewEditor(Store.songs.find(s => s.id === state.sub.slice(5)));
+  if (state.sub) { const s = allSongs().find(x => x.id === state.sub); if (s) return viewSong(s); }
+  const el = h(`<section class="view">
+    <div class="row" style="justify-content:space-between;align-items:flex-end"><div><p class="eyebrow">Songbook</p><h1>Songs</h1></div>
+      <div class="row"><button class="btn" id="sImport">Import backup</button><button class="btn" id="sExport">Export backup</button><button class="btn primary" id="sNew">${ICON.plus}Add song</button></div></div>
+    <div class="row"><input type="search" id="sq" placeholder="Search title, artist or chord" class="grow" style="max-width:420px"><div class="seg" id="sf"><button aria-pressed="true" data-f="all">All</button><button aria-pressed="false" data-f="mine">My songs</button><button aria-pressed="false" data-f="Easy">Easy</button><button aria-pressed="false" data-f="Intermediate">Intermediate</button></div></div>
+    <div id="mine" style="display:grid;gap:10px"></div>
+    <div style="display:grid;gap:10px"><h2>Starter songbook</h2><p class="small muted">Traditional and public-domain songs chosen to practise what's in the lessons.</p><div class="songlist" id="built"></div></div>
+  </section>`);
+  let filter = "all", q = "";
+  const row = s => { const cs = chordsInSong(s.body).slice(0, 6); return `<button class="songrow" data-song="${esc(s.id)}"><span class="keybadge ${s.user ? "user" : ""}">${esc(s.key || cs[0] || "♪")}</span><span class="grow"><span class="t">${esc(s.title || "Untitled")}</span><br><span class="meta">${esc(s.artist || "Unknown artist")}${cs.length ? " · " + esc(cs.join(" ")) : ""}${s.images?.length ? " · screenshot" : ""}</span></span>${s.level ? `<span class="chip ${s.level === "Easy" ? "easy" : "mid"}">${esc(s.level)}</span>` : ""}</button>`; };
+  const match = s => { if (filter === "mine" && !s.user) return false; if ((filter === "Easy" || filter === "Intermediate") && s.level !== filter) return false; if (!q) return true; const hay = (s.title + " " + s.artist + " " + chordsInSong(s.body).join(" ")).toLowerCase(); return q.toLowerCase().split(/\s+/).every(w => hay.includes(w)); };
+  const draw = () => {
+    const mine = Store.songs.map(s => ({ ...s, user:true })).filter(match);
+    const showMine = filter === "all" || filter === "mine" || mine.length;
+    $("#mine", el).innerHTML = showMine ? `<h2>My songs</h2>` + (Store.songs.length ? (mine.length ? `<div class="songlist">${mine.map(row).join("")}</div>` : `<p class="small muted">No matches.</p>`)
+      : `<div class="empty"><b>Your songs will appear here</b><p class="small muted">Paste chords or a tab from any website, or add a screenshot of a song sheet. ${Store.mode === "cloud" ? "They're saved to your Claude account." : "They're saved in this browser."}</p><button class="btn primary" data-new>${ICON.plus}Add your first song</button></div>`) : "";
+    const b = BUILTIN.filter(match); $("#built", el).innerHTML = b.length ? b.map(row).join("") : `<p class="small muted">No matches.</p>`;
+    $("#built", el).parentElement.hidden = filter === "mine";
+  };
+  draw();
+  $("#sq", el).oninput = e => { q = e.target.value.trim(); draw(); };
+  $("#sf", el).onclick = e => { const b = e.target.closest("button"); if (!b) return; filter = b.dataset.f; [...$("#sf", el).children].forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); };
+  el.addEventListener("click", e => { const s = e.target.closest("[data-song]"); if (s){ state.transpose = 0; navTo("songs", s.dataset.song); } if (e.target.closest("[data-new]")) navTo("songs", "new"); });
+  $("#sNew", el).onclick = () => navTo("songs", "new");
+  $("#sExport", el).onclick = exportBackup;
+  $("#sImport", el).onclick = () => { const p = $("#jsonpick"); p.value = ""; p.onchange = () => importFile(p.files[0]); p.click(); };
+  return el;
+}
+async function exportBackup(){
+  const songs = []; for (const s of Store.songs){ songs.push({ ...s, imageData: await Store.images(s) }); }
+  const data = JSON.stringify({ app:"fretwise", version:1, exported:new Date().toISOString(), songs, progress:Store.progress }, null, 1);
+  const filename = "fretwise-songbook-" + new Date().toISOString().slice(0,10) + ".json";
+  try {
+    const dl = window.claude?.use ? await window.claude.use("downloads") : null;
+    if (dl){ await dl.save({ filename, data }); toast("Backup saved"); return; }
+  } catch (e){ if (e && e.code === "declined") return; }
+  try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([data], { type:"application/json" })); a.download = filename; document.body.append(a); a.click(); a.remove(); toast("Backup downloaded"); }
+  catch { toast("Couldn't save the file in this view"); }
+}
+async function importFile(file){
+  if (!file) return; const text = await file.text();
+  let obj = null; try { obj = JSON.parse(text); } catch {}
+  if (obj && Array.isArray(obj.songs)){
+    let n = 0; for (const s of obj.songs){ const images = (s.imageData || []).map(src => Store.saveImage(src)); const { imageData, user, ...rest } = s; Store.saveSong({ ...rest, id: rest.id || uid(), images }); n++; }
+    if (obj.progress) { Store.progress = Object.assign({ done:{}, tasks:{}, records:{} }, obj.progress); Store.saveProgress(); }
+    toast(`Imported ${n} song${n === 1 ? "" : "s"}`); render(); return;
+  }
+  // plain text / ChordPro file → open editor prefilled
+  const { meta } = parseSong(text); state.draft = { title: meta.title || file.name.replace(/\.[^.]+$/, ""), artist: meta.artist || meta.subtitle || "", key: meta.key || "", capo: +meta.capo || 0, body: text.replace(/^\s*\{\s*(t|title|st|subtitle|artist|key|capo)\s*:[^}]*\}\s*$/gim, "").trim() };
+  navTo("songs", "new");
+}
+
+function viewSong(s){
+  const st = () => state.transpose;
+  const el = h(`<section class="view">
+    <div class="row"><button class="btn ghost sm" data-back>${ICON.back}Songbook</button></div>
+    <div style="display:grid;gap:6px"><p class="eyebrow">${esc(s.user ? "My song" : "Starter songbook")}${s.level ? " · " + esc(s.level) : ""}</p><h1>${esc(s.title || "Untitled")}</h1>
+      <p class="muted">${esc(s.artist || "")}${s.key ? ` · Key <b id="skey">${esc(transposeChord(s.key, 0))}</b>` : ""}${s.capo ? ` · Capo ${s.capo}` : ""}${s.time ? ` · ${esc(s.time)}` : ""}${s.tuning && s.tuning !== "Standard" ? ` · ${esc(s.tuning)}` : ""}</p>
+      ${s.strum ? `<p class="small"><span class="eyebrow">Strum</span> <span style="font-family:var(--f-mono)">${esc(s.strum)}</span></p>` : ""}</div>
+    <div class="toolbar">
+      <div class="stepper" title="Transpose"><button id="tDown" aria-label="Transpose down">−</button><span id="tVal">Key ±0</span><button id="tUp" aria-label="Transpose up">+</button></div>
+      <div class="stepper" title="Text size"><button id="fDown" aria-label="Smaller text">A−</button><span id="fVal">${state.font}px</span><button id="fUp" aria-label="Larger text">A+</button></div>
+      <button class="btn sm" id="ascroll">${ICON.play}Scroll</button><input type="range" id="aspeed" min="0.3" max="4" step="0.1" value="${AutoScroll.speed}" style="width:90px" aria-label="Scroll speed">
+      <div class="grow"></div>
+      ${s.user ? `<button class="btn sm" id="sEdit">Edit</button>` : `<button class="btn sm" id="sCopy">Copy to my songs</button>`}
+    </div>
+    <div id="cstrip" class="chordstrip"></div>
+    <div class="sheet" id="sheet"></div>
+    <div id="shots" class="shots"></div>
+    ${s.user ? `<div class="row" id="delrow"><button class="btn sm danger" id="sDel">Delete song</button></div>` : ""}
+  </section>`);
+  const draw = () => {
+    $("#sheet", el).innerHTML = s.body ? renderSheet(s.body, st()) : `<p class="muted">No text yet. ${s.images?.length ? "See the screenshot below." : ""}</p>`;
+    $("#sheet", el).style.fontSize = state.font + "px";
+    const cs = chordsInSong(s.body || "", st()); $("#cstrip", el).innerHTML = cs.map(chordCard).join(""); $("#cstrip", el).hidden = !cs.length;
+    $("#tVal", el).textContent = "Key " + (st() > 0 ? "+" : st() < 0 ? "−" : "±") + Math.abs(st());
+    if ($("#skey", el)) $("#skey", el).textContent = transposeChord(s.key, st());
+  };
+  draw();
+  $("#tUp", el).onclick = () => { state.transpose = state.transpose >= 6 ? -5 : state.transpose + 1; draw(); };
+  $("#tDown", el).onclick = () => { state.transpose = state.transpose <= -6 ? 5 : state.transpose - 1; draw(); };
+  $("#fDown", el).onclick = () => { state.font = Math.max(10, state.font - 1); $("#fVal", el).textContent = state.font + "px"; draw(); };
+  $("#fUp", el).onclick = () => { state.font = Math.min(26, state.font + 1); $("#fVal", el).textContent = state.font + "px"; draw(); };
+  $("#ascroll", el).onclick = e => { const b = e.currentTarget; if (AutoScroll.on){ AutoScroll.stop(); b.innerHTML = ICON.play + "Scroll"; } else { AutoScroll.start(); b.innerHTML = ICON.stop + "Stop"; } };
+  $("#aspeed", el).oninput = e => AutoScroll.speed = +e.target.value;
+  $("#sheet", el).addEventListener("click", e => { const b = e.target.closest("[data-chord]"); if (b) Audio.strum(b.dataset.chord); });
+  $("[data-back]", el).onclick = () => navTo("songs");
+  if (s.user){
+    $("#sEdit", el).onclick = () => navTo("songs", "edit:" + s.id);
+    $("#sDel", el).onclick = () => { const r = $("#delrow", el); r.innerHTML = `<span class="small">Delete “${esc(s.title)}” permanently?</span><button class="btn sm danger" id="yes">Delete</button><button class="btn sm" id="no">Keep</button>`; $("#yes", r).onclick = () => { Store.deleteSong(s.id); toast("Song deleted"); navTo("songs"); }; $("#no", r).onclick = () => navTo("songs", s.id); };
+    Store.images(s).then(imgs => { if (imgs.length) $("#shots", el).innerHTML = `<h2>Screenshots</h2>` + imgs.map(src => `<img alt="Song screenshot" src="${esc(src)}">`).join(""); });
+  } else {
+    $("#sCopy", el).onclick = () => { const { user, id, ...rest } = s; const n = { ...rest, id: uid(), title: s.title, body: s.body, images: [] }; Store.saveSong(n); toast("Copied. You can edit it now."); navTo("songs", "edit:" + n.id); };
+  }
+  return el;
+}
+
+/* ===================== song editor + screenshot import ===================== */
+async function downscale(file, maxW = 1400, budget = 180000){
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    let w = img.naturalWidth, hgt = img.naturalHeight; const scale = Math.min(1, maxW / w); w = Math.round(w * scale); hgt = Math.round(hgt * scale);
+    const c = document.createElement("canvas"); let q = 0.82, out;
+    for (let tries = 0; tries < 8; tries++){
+      c.width = w; c.height = hgt; const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, w, hgt); g.drawImage(img, 0, 0, w, hgt);
+      out = c.toDataURL("image/jpeg", q); if (out.length < budget * 1.33) break;
+      if (q > 0.5) q -= 0.12; else { w = Math.round(w * 0.8); hgt = Math.round(hgt * 0.8); }
+    }
+    return out;
+  } finally { URL.revokeObjectURL(url); }
+}
+const dataUrlToBlob = async d => (await fetch(d)).blob();
+function loadScript(src){ return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s); }); }
+
+function viewEditor(existing){
+  const draft = existing ? { ...existing } : Object.assign({ title:"", artist:"", key:"", capo:0, tuning:"Standard", strum:"", level:"", body:"", images:[] }, state.draft || {});
+  state.draft = null;
+  const pending = []; // newly added screenshots (data URLs) not saved yet
+  const el = h(`<section class="view">
+    <div class="row"><button class="btn ghost sm" data-back>${ICON.back}${existing ? "Back to song" : "Songbook"}</button></div>
+    <div><p class="eyebrow">${existing ? "Edit song" : "New song"}</p><h1>${existing ? esc(existing.title || "Untitled") : "Add a song"}</h1></div>
+    <div class="panel" style="display:grid;gap:12px">
+      <h2>From a screenshot</h2>
+      <div class="drop" id="drop">
+        <p><b>Drop screenshots here</b>, paste an image (Ctrl/⌘ V), or</p>
+        <button class="btn" id="pick">Choose images</button>
+        <p class="small muted" id="ocrHint">The text is read from the image so you can transpose it and see chord diagrams. The screenshot is also saved with the song.</p>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+      <div class="row" id="ocrRow" hidden><button class="btn primary" id="readBtn">Read song from screenshots</button><span class="small muted" id="ocrStatus"></span></div>
+    </div>
+    <div class="editor">
+      <div style="display:grid;gap:12px;align-content:start">
+        <div class="formgrid">
+          <div class="field" style="grid-column:1/-1"><label for="eTitle">Title</label><input type="text" id="eTitle" value="${esc(draft.title)}" placeholder="Song title"></div>
+          <div class="field" style="grid-column:1/-1"><label for="eArtist">Artist</label><input type="text" id="eArtist" value="${esc(draft.artist)}" placeholder="Artist"></div>
+          <div class="field"><label for="eKey">Key</label><input type="text" id="eKey" value="${esc(draft.key)}" placeholder="e.g. G"></div>
+          <div class="field"><label for="eCapo">Capo</label><input type="number" id="eCapo" min="0" max="12" value="${+draft.capo || 0}"></div>
+          <div class="field"><label for="eLevel">Level</label><select id="eLevel">${["","Easy","Intermediate","Hard"].map(v => `<option value="${v}" ${draft.level === v ? "selected" : ""}>${v || "—"}</option>`).join("")}</select></div>
+          <div class="field"><label for="eTuning">Tuning</label><select id="eTuning">${Object.keys(TUNINGS).map(v => `<option ${draft.tuning === v ? "selected" : ""}>${v}</option>`).join("")}</select></div>
+          <div class="field" style="grid-column:1/-1"><label for="eStrum">Strumming / picking</label><input type="text" id="eStrum" value="${esc(draft.strum)}" placeholder="e.g. D DU UDU"></div>
+        </div>
+        <div class="field"><label for="eBody">Chords, lyrics and tabs</label><textarea id="eBody" spellcheck="false" placeholder="${esc(`Paste from any chord or tab site. All of these work:
+
+[Verse]
+G             C          G
+Chords above the lyrics, aligned with spaces
+
+Or [G]inline chords in [C]brackets (ChordPro)
+
+e|-----0---------|
+B|---1---1-------|
+G|-2-------2-----|`)}">${esc(draft.body)}</textarea></div>
+        <div class="row"><button class="btn" id="tidy" hidden>Tidy up with Claude</button><span class="small muted" id="tidyStatus"></span></div>
+      </div>
+      <div style="display:grid;gap:8px;align-content:start"><p class="eyebrow">Preview</p><div id="pchords" class="chordstrip"></div><div class="sheet" id="preview" style="font-size:13px"></div></div>
+    </div>
+    <div class="row savebar"><button class="btn primary" id="save">Save song</button><button class="btn" data-back>Cancel</button></div>
+  </section>`);
+  const body = $("#eBody", el);
+  const preview = () => { $("#preview", el).innerHTML = body.value.trim() ? renderSheet(body.value) : `<p class="muted small">Your formatted song will appear here.</p>`; const cs = chordsInSong(body.value); $("#pchords", el).innerHTML = cs.map(chordCard).join(""); };
+  body.oninput = () => { clearTimeout(body._t); body._t = setTimeout(preview, 150); }; preview();
+  // existing screenshots
+  const thumbs = $("#thumbs", el); const kept = [...(draft.images || [])];
+  const drawThumbs = async () => {
+    const keptSrc = existing ? await Store.images({ images: kept }) : [];
+    thumbs.innerHTML = [...keptSrc.map((src, i) => `<figure><img src="${esc(src)}" alt="Saved screenshot"><button data-rmk="${i}" aria-label="Remove screenshot">×</button></figure>`), ...pending.map((src, i) => `<figure><img src="${esc(src)}" alt="New screenshot"><button data-rmp="${i}" aria-label="Remove screenshot">×</button></figure>`)].join("");
+    $("#ocrRow", el).hidden = !pending.length && !keptSrc.length;
+  };
+  drawThumbs();
+  thumbs.onclick = e => { const k = e.target.dataset.rmk, p = e.target.dataset.rmp; if (k != null) kept.splice(+k, 1); if (p != null) pending.splice(+p, 1); drawThumbs(); };
+  const addFiles = async files => { for (const f of files){ if (!f.type.startsWith("image/")) continue; try { pending.push(await downscale(f)); } catch { toast("Couldn't read that image"); } } drawThumbs(); };
+  $("#pick", el).onclick = () => { const p = $("#filepick"); p.value = ""; p.onchange = () => addFiles([...p.files]); p.click(); };
+  const drop = $("#drop", el);
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); }; drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over"); addFiles([...e.dataTransfer.files]); };
+  const onPaste = e => { if (!document.body.contains(el)) { document.removeEventListener("paste", onPaste); return; } const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith("image/")); if (files.length){ e.preventDefault(); addFiles(files); } };
+  document.addEventListener("paste", onPaste);
+
+  // reading: Claude vision inside Claude, Tesseract OCR elsewhere
+  const status = $("#ocrStatus", el), readBtn = $("#readBtn", el);
+  Claude.canImages().then(ok => { if (ok) $("#ocrHint", el).textContent = "Claude reads the chords, lyrics and tab from your screenshot and lays them out so you can transpose them. The screenshot is also saved with the song."; });
+  Claude.sample().then(s => { if (s) $("#tidy", el).hidden = false; });
+  readBtn.onclick = async () => {
+    const srcs = [...(existing ? await Store.images({ images: kept }) : []), ...pending]; if (!srcs.length) return;
+    readBtn.disabled = true; status.textContent = "Reading…";
+    try {
+      if (await Claude.canImages()){
+        const s = await Claude.sample(); const blobs = await Promise.all(srcs.map(dataUrlToBlob));
+        const lim = (await s.limits()).images; const imgs = blobs.slice(0, lim.maxCount);
+        status.textContent = "Claude is reading the screenshot. This takes up to a minute…";
+        const res = await s.json(`These images are screenshots of a guitar song sheet (chords, lyrics and/or tablature), possibly several pages in order. Transcribe them.
+Return JSON: {"title": string, "artist": string, "key": string, "capo": number, "strum": string, "body": string}. Use "" or 0 when not shown.
+${PROMPT_FORMAT}`, { images: imgs, modelTier: "default" });
+        applyResult(res);
+        status.textContent = "Done. Check the text against the screenshot and fix anything misread.";
+      } else {
+        status.textContent = "Loading the text reader (first time only)…";
+        if (!window.Tesseract) await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js");
+        let text = "";
+        for (let i = 0; i < srcs.length; i++){
+          const r = await window.Tesseract.recognize(srcs[i], "eng", { logger: m => { if (m.status === "recognizing text") status.textContent = `Reading image ${i + 1}/${srcs.length}: ${Math.round(m.progress * 100)}%`; } });
+          text += (text ? "\n\n" : "") + r.data.text;
+        }
+        body.value = (body.value.trim() ? body.value.trim() + "\n\n" : "") + cleanOcr(text); preview();
+        status.textContent = "Text read. Chord alignment from screenshots is approximate, so compare with the image and adjust.";
+      }
+    } catch (e){
+      if (e && e.code === "not_granted") status.textContent = "Claude wasn't allowed to read images. Type or paste the song instead; the screenshot is still saved.";
+      else if (e && e.code === "rate_limited") status.textContent = "Too many requests right now. Try again in a minute.";
+      else status.textContent = "Couldn't read the screenshot here. Save it as an image-only song, or type the chords in.";
+    } finally { readBtn.disabled = false; }
+  };
+  function applyResult(res){
+    if (!res || typeof res !== "object") return;
+    if (res.title && !$("#eTitle", el).value) $("#eTitle", el).value = String(res.title);
+    if (res.artist && !$("#eArtist", el).value) $("#eArtist", el).value = String(res.artist);
+    if (res.key && !$("#eKey", el).value) $("#eKey", el).value = String(res.key);
+    if (res.capo) $("#eCapo", el).value = parseInt(res.capo, 10) || 0;
+    if (res.strum && !$("#eStrum", el).value) $("#eStrum", el).value = String(res.strum);
+    if (res.body){ body.value = (body.value.trim() ? body.value.trim() + "\n\n" : "") + String(res.body); preview(); }
+  }
+  $("#tidy", el).onclick = async () => {
+    if (!body.value.trim()){ toast("Paste some chords or a tab first"); return; }
+    const s = await Claude.sample(); if (!s) return; const ts = $("#tidyStatus", el); const b = $("#tidy", el); b.disabled = true; ts.textContent = "Tidying…";
+    try { const res = await s.json(`Reformat this pasted guitar song text, which may include website clutter (ads, menus, ratings, "print" links). Keep only the song.
+Return JSON: {"title": string, "artist": string, "key": string, "capo": number, "strum": string, "body": string}.
+${PROMPT_FORMAT}
+
+Pasted text:
+"""
+${body.value.slice(0, 60000)}
+"""`, { modelTier: "default" }); body.value = ""; applyResult(res); ts.textContent = "Tidied. Check the result."; }
+    catch (e){ ts.textContent = e && e.code === "not_granted" ? "Claude wasn't allowed. Your text is unchanged." : "Couldn't tidy right now. Your text is unchanged."; }
+    finally { b.disabled = false; }
+  };
+  $("#save", el).onclick = () => {
+    const song = { ...(existing || {}), id: existing?.id || uid(),
+      title: $("#eTitle", el).value.trim() || "Untitled", artist: $("#eArtist", el).value.trim(), key: $("#eKey", el).value.trim(),
+      capo: parseInt($("#eCapo", el).value, 10) || 0, level: $("#eLevel", el).value, tuning: $("#eTuning", el).value, strum: $("#eStrum", el).value.trim(), body: body.value.replace(/\s+$/, "") };
+    if (!song.body && !kept.length && !pending.length){ toast("Add some text or a screenshot first"); return; }
+    if (existing) for (const im of existing.images || []) if (!kept.includes(im)){ try { localStorage.removeItem("fw.img." + im); } catch {} Store._write("img_" + im, null); }
+    song.images = [...kept, ...pending.map(src => Store.saveImage(src))];
+    delete song.user; Store.saveSong(song); toast("Song saved"); document.removeEventListener("paste", onPaste); state.transpose = 0; navTo("songs", song.id);
+  };
+  el.querySelectorAll("[data-back]").forEach(b => b.onclick = () => { document.removeEventListener("paste", onPaste); navTo("songs", existing ? existing.id : null); });
+  return el;
+}
+function cleanOcr(t){
+  return t.split("\n").map(l => l.replace(/\s+$/, "")
+    .replace(/^([eBGDAE])\s*[|l1I!]\s*/, "$1|")          // tab string labels
+    .replace(/[—–_]{1,}/g, m => "-".repeat(m.length))     // dashes
+    .replace(/(?<=[-|])[oO](?=[-|])/g, "0")                // o → 0 in tabs
+  ).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/* ===================== boot ===================== */
+(function boot(){
+  const v = location.hash.slice(1); if (VIEWS.some(x => x[0] === v)) state.view = v;
+  Store.init();
+  Store.on(() => { if ((state.view === "learn" || state.view === "songs") && !state.sub && !$("#app").contains(document.activeElement)) render(); });
+  render();
+  document.addEventListener("visibilitychange", () => { if (document.hidden) { Tuner.stop(); } });
+})();
+</script>
+<!--PAGE-END-->
+</body>
+</html>
