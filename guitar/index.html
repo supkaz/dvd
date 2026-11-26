@@ -201,6 +201,19 @@ table.keys th{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;col
 .tablewrap{overflow-x:auto}
 .savebar{position:sticky;bottom:0;background:var(--bg);padding-block:10px;border-top:1px solid var(--line)}
 @media (max-width:720px){.savebar{bottom:calc(64px + env(safe-area-inset-bottom,0px))}}
+.linkbtn{all:unset;cursor:pointer;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.linkbtn:focus-visible{outline:2px solid var(--accent)}
+.rec.primary{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.recrow{display:flex;gap:18px;align-items:flex-start}
+.recdia{width:120px;flex:none}
+@media (max-width:480px){.recrow{flex-direction:column}.recdia{width:110px}}
+.chordcard.known{background:var(--accent-soft);border-color:var(--accent)}
+.chordcard.known .cn{color:var(--accent)}
+.notebtns{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.keygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.keycell{display:grid;gap:4px;justify-items:center}
+.keycell .eyebrow{text-transform:none;font-family:var(--f-display);font-size:.9rem;letter-spacing:0;color:var(--brass)}
+.keycell .chordcard{width:100%}
 .empty{border:1px dashed var(--line);border-radius:var(--r);padding:20px;display:grid;gap:8px;justify-items:start}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
@@ -290,7 +303,7 @@ const CHORDS = {
   "E":["022100","023100"], "Em":["022000","023000"], "E7":["020100","020100"], "Em7":["020000","020000"], "Esus4":["022200","023400"],
   "F":["133211","134211"], "Fm":["133111","134111"], "Fmaj7":["xx3210","003210"],
   "G":["320003","210003"], "G7":["320001","320001"], "Gmaj7":["3x0002","200001"],
-  "A":["x02220","001230"], "Am":["x02210","002310"], "A7":["x02020","002030"], "Am7":["x02010","002010"],
+  "A":["x02220","001230"], "Am":["x02210","002310"], "A7":["x02020","002030"], "A7sus4":["x02030","002030"], "Am7":["x02010","002010"],
   "Asus2":["x02200","001200"], "Asus4":["x02230","001240"], "Amaj7":["x02120","002130"],
   "B7":["x21202","021304"], "Bm":["x24432","013421"], "Bb":["x13331","013331"],
   "F#m":["244222","134111"], "C#m":["x46654","013421"],
@@ -824,6 +837,306 @@ E|-0-0-0-0-0-0-0-0--|
 {c: Move the same riff to the A string for A, and to the A string 2nd fret for B7.}` },
 ];
 
+/* ===================== music theory lessons ===================== */
+TABS.cmajor = `   C   D   E   F   G   A   B   C
+e|-------------------------------|
+B|-------------------------0---1-|
+G|-----------------0---2---------|
+D|-----0---2---3-----------------|
+A|-3-----------------------------|
+E|-------------------------------|`;
+TAB_AUDIO.cmajor = () => ({ notes: [48,50,52,53,55,57,59,60,60,59,57,55,53,52,50,48].map(m => [m, .5]), bpm: 100 });
+LEVELS.find(l => l.id === "l5").blurb = "Notes, intervals, how chords are built, keys and rhythm: the why behind what your hands are doing.";
+const THEORY = [
+  { id:"notes", level:"l5", title:"Notes and the fretboard", min:15, body:`
+<p>Western music uses only 12 notes, then repeats them higher and lower. The natural notes are <b>A B C D E F G</b>. Between most pairs sits one more note, a sharp or flat, <b>except between B–C and E–F</b>, which are already a half step apart.</p>
+<div class="tabblock"><pre>A   A#  B   C   C#  D   D#  E   F   F#  G   G#  A
+    Bb          Db      Eb          Gb      Ab</pre></div>
+<ul><li><b>One fret = one half step</b> (semitone). Two frets = a whole step (tone).</li><li>A sharp (#) raises a note by one fret, a flat (b) lowers it by one fret. C# and Db are the same fret: one sound, two names.</li><li>The <b>12th fret</b> is the octave: the same notes as the open strings, one octave up. Everything repeats from there.</li><li>Open strings, thick to thin: <b>E A D G B E</b>. "Eddie Ate Dynamite, Good Bye Eddie."</li></ul>
+<p>The natural notes on the two bass strings. These are the root notes for every barre and power chord:</p>
+{{fret:rootNotes}}
+<h3>Quiz yourself</h3>
+{{tool:notequiz}}`,
+    tasks:["Say the musical alphabet with sharps from A back to A","Name every natural note on the low E string up to fret 12","Get a streak of 10 on the note quiz"] },
+  { id:"intervals", level:"l5", title:"Intervals: the distance between notes", min:15, body:`
+<p>An interval is the distance between two notes, counted in half steps (frets). Melodies are made of intervals, and so are chords: a major chord is a root plus a major 3rd plus a perfect 5th.</p>
+<h3>Intervals on the guitar</h3>
+<ul><li><b>Same string:</b> the number of frets is the number of half steps.</li><li><b>Next string, same fret:</b> a perfect 4th (5 half steps). The exception is G to B, which is a major 3rd. That's why chord shapes bend on the B string.</li><li><b>Next string, two frets up:</b> a perfect 5th. That is the power chord shape.</li><li><b>Two strings over, two frets up:</b> an octave (from the E, A or D string).</li></ul>
+{{tool:intervals}}
+<p class="note">Sing along. If you can sing an interval you'll start to hear it in songs, and working out songs by ear gets much easier.</p>`,
+    tasks:["Sing a major 3rd and a perfect 5th above a note you play","Find the octave of A (low E, 5th fret) on the D string","Tell a 4th from a 5th by ear using the song cues"] },
+  { id:"triads", level:"l5", title:"How chords are built", min:20, body:`
+<p>A chord is three or more notes played together. Most chords are built by stacking <b>3rds</b>: every other note of a scale. Three notes make a <b>triad</b>.</p>
+<ul><li><b>Major</b> = root + major 3rd (4 half steps) + perfect 5th (7). C major is C E G. It sounds bright.</li><li><b>Minor</b> = root + minor 3rd (3) + perfect 5th. C minor is C Eb G. Move one note down one fret and the mood flips.</li><li><b>7th chords</b> add a fourth note. The dominant 7 (♭7) adds tension that wants to resolve; major 7 is dreamy; minor 7 is smooth.</li><li><b>Sus chords</b> swap the 3rd for a 2nd or a 4th, so they are neither major nor minor.</li><li><b>Power chords</b> leave out the 3rd completely, which is why they work under distortion.</li></ul>
+<p>A six-string chord just doubles some of those notes. Open C (x32010) plays C E G C E: only three different notes.</p>
+{{tool:builder}}
+<p class="note">Compare E and Em, A and Am, D and Dm. Each time only the 3rd moves, by one fret, and that one note decides major or minor.</p>`,
+    tasks:["Name the three notes in G, D and Em","Find the 3rd in your open E chord and lower it to make Em","Build C7 in the builder, then play C7 → F and hear the pull"] },
+  { id:"scale", level:"l5", title:"The major scale and keys", min:20, body:`
+<p>The major scale is the do-re-mi everyone knows. It always follows the same pattern of whole (W) and half (H) steps: <b>W W H W W W H</b>. Start the pattern on any note and you get that note's major scale.</p>
+{{tab:cmajor}}
+<h3>From the scale to the chords in a key</h3>
+<p>Build a triad on every note of the scale, using only notes from that scale, and you get the chord family of the key: three major chords (<b>I, IV, V</b>), three minor chords (<b>ii, iii, vi</b>) and one diminished chord (<b>vii°</b>). That is why G, C, D and Em sound right together: they all come from the G major scale.</p>
+{{tool:keyexplorer}}
+<p><b>Relative minor:</b> the vi chord names the relative minor key. A minor uses exactly the same notes as C major, centred on A. Minor-key songs like Greensleeves and House of the Rising Sun borrow E (major) from outside the key to get a stronger pull back home.</p>`,
+    tasks:["Play the C major scale and sing do-re-mi with it","Play I – IV – V – I in three keys using the key explorer","Name the key of Amazing Grace and its I, IV and V chords"] },
+];
+const RHYTHM = { id:"rhythm", level:"l5", title:"Rhythm and time signatures", min:15, body:`
+<p>Rhythm is what turns a list of chords into a song. The <b>time signature</b> tells you how many beats are in each bar and how they group.</p>
+<div class="tablewrap"><table class="keys"><thead><tr><th>Time</th><th>Feel</th><th>Count</th><th>In the songbook</th></tr></thead><tbody>
+<tr><td><b>4/4</b></td><td>4 beats per bar</td><td>1 & 2 & 3 & 4 &</td><td>The Water Is Wide, Oh! Susanna</td></tr>
+<tr><td><b>3/4</b></td><td>3 beats, a waltz</td><td>1 & 2 & 3 &</td><td>Amazing Grace, Scarborough Fair</td></tr>
+<tr><td><b>6/8</b></td><td>2 big beats, each split in 3</td><td>1 2 3 4 5 6</td><td>House of the Rising Sun, Greensleeves</td></tr>
+<tr><td><b>Shuffle</b></td><td>4 beats, swung long-short</td><td>1-trip-let 2-trip-let</td><td>Twelve-Bar Shuffle</td></tr></tbody></table></div>
+<h3>Note lengths</h3>
+<ul><li>Whole note = 4 beats, half note = 2, quarter note = 1.</li><li>Eighth note = ½ beat (count "1 &"), sixteenth = ¼ beat (count "1 e & a").</li><li>A dot adds half the note's length: a dotted half note lasts 3 beats.</li><li>A tie joins two notes into one longer note. Rests are silences of the same lengths.</li></ul>
+<h3>A 3/4 strum to try</h3>
+{{strum:D.DUDU|G,C,D,G}}
+<ol><li>Set the metronome to 70 and strum quarter notes, counting out loud.</li><li>Switch to eighth notes (down-up), still counting "1 & 2 &".</li><li>Accent beat 1 of every bar and change chords exactly on it.</li></ol>`,
+  tasks:["Count and strum one 4/4 and one 3/4 song from the songbook","Play the blues shuffle with a swung long-short feel","Play a song with the metronome at 60, 80 and 100 BPM"] };
+LESSONS.splice(LESSONS.findIndex(l => l.id === "keys"), 0, ...THEORY);
+LESSONS.push(RHYTHM);
+
+/* ===================== suggested songs & chord plan ===================== */
+// Popular songs with their (commonly played) chords; no lyrics or charts are included.
+const SUGGESTED = [
+  { id:"jetplane", t:"Leaving on a Jet Plane", a:"John Denver", c:["G","C","D"] },
+  { id:"blowin", t:"Blowin' in the Wind", a:"Bob Dylan", c:["G","C","D"] },
+  { id:"badmoon", t:"Bad Moon Rising", a:"Creedence Clearwater Revival", c:["D","A","G"] },
+  { id:"birds", t:"Three Little Birds", a:"Bob Marley", c:["A","D","E"] },
+  { id:"knockin", t:"Knockin' on Heaven's Door", a:"Bob Dylan", c:["G","D","Am","C"] },
+  { id:"standbyme", t:"Stand By Me", a:"Ben E. King", c:["G","Em","C","D"], note:"Played in G here; the record is in A" },
+  { id:"perfect", t:"Perfect", a:"Ed Sheeran", c:["G","Em","C","D"], capo:1 },
+  { id:"zombie", t:"Zombie", a:"The Cranberries", c:["Em","C","G","D"] },
+  { id:"wagon", t:"Wagon Wheel", a:"Old Crow Medicine Show", c:["G","D","Em","C"] },
+  { id:"wonderful", t:"Wonderful Tonight", a:"Eric Clapton", c:["G","D","C","Em"] },
+  { id:"heyjoe", t:"Hey Joe", a:"Jimi Hendrix", c:["C","G","D","A","E"] },
+  { id:"sunshine", t:"Ain't No Sunshine", a:"Bill Withers", c:["Am","Em","G","Dm"] },
+  { id:"redemption", t:"Redemption Song", a:"Bob Marley", c:["G","Em","C","Am","D"] },
+  { id:"wishyou", t:"Wish You Were Here", a:"Pink Floyd", c:["C","D","Am","G","Em"], note:"The intro riff is a good tab exercise" },
+  { id:"browneyed", t:"Brown Eyed Girl", a:"Van Morrison", c:["G","C","D","Em","D7"] },
+  { id:"alabama", t:"Sweet Home Alabama", a:"Lynyrd Skynyrd", c:["D","Cadd9","G"] },
+  { id:"freefallin", t:"Free Fallin'", a:"Tom Petty", c:["D","Dsus4","A","Asus4"], capo:3 },
+  { id:"wonderwall", t:"Wonderwall", a:"Oasis", c:["Em7","G","Dsus4","A7sus4","Cadd9"], capo:2 },
+  { id:"fastcar", t:"Fast Car", a:"Tracy Chapman", c:["Cmaj7","G","Em","D"], capo:2 },
+  { id:"letitbe", t:"Let It Be", a:"The Beatles", c:["C","G","Am","F"] },
+  { id:"riptide", t:"Riptide", a:"Vance Joy", c:["Am","G","C","F"] },
+  { id:"rain", t:"Have You Ever Seen the Rain", a:"Creedence Clearwater Revival", c:["C","G","Am","F","Em"] },
+  { id:"hallelujah", t:"Hallelujah", a:"Leonard Cohen", c:["C","Am","F","G","E7"] },
+  { id:"losing", t:"Losing My Religion", a:"R.E.M.", c:["Am","Em","Dm","G","F","C"] },
+  { id:"wildworld", t:"Wild World", a:"Cat Stevens", c:["Am","D","G","C","F","Dm","E"] },
+  { id:"falling", t:"Can't Help Falling in Love", a:"Elvis Presley", c:["C","Em","Am","F","G","B7","A7","Dm"] },
+  { id:"hotel", t:"Hotel California", a:"Eagles", c:["Am","E","G","D","F","C","Dm"], capo:7 },
+  { id:"delilah", t:"Hey There Delilah", a:"Plain White T's", c:["D","F#m","Bm","G","A"] },
+  { id:"creep", t:"Creep", a:"Radiohead", c:["G","B","C","Cm"] },
+];
+// teaching order, with a tip on how to get each chord from ones you know
+const CURRICULUM = [
+  ["Em","Two fingers and all six strings ring. The easiest full-sounding chord."],
+  ["Am","The Em shape moved over by one string, plus your 1st finger."],
+  ["E","Em with your 1st finger added on the G string."],
+  ["A","Three fingers side by side on fret 2. Angle them slightly to fit."],
+  ["D","A small triangle on the top three strings. Skip the low E when you strum."],
+  ["G","Start with the 3-finger version. Later, a 2-3-4 fingering makes the change to C faster."],
+  ["C","The reach from the A string to the B string is the hard part. Keep your thumb low behind the neck."],
+  ["Dm","Like D, but the top string drops one fret."],
+  ["E7","Lift one finger off E and you have it. Instant blues."],
+  ["A7","A with the G string left open."],
+  ["D7","An upside-down D. It pulls strongly toward G."],
+  ["G7","G with the top string at fret 1. It pulls toward C."],
+  ["C7","C plus your pinky on the G string, fret 3."],
+  ["B7","Your first four-finger chord, and the key to songs in E minor."],
+  ["Dsus4","Add your pinky to D. Flick it on and off for movement."],
+  ["Dsus2","Lift your top-string finger off D."],
+  ["Asus2","Lift your B-string finger off A."],
+  ["Asus4","A with a finger at fret 3 on the B string."],
+  ["Cadd9","If you play G with fingers 2-3-4, your 3rd and 4th fingers stay put when you change."],
+  ["Em7","Em with the high G added on the B string, or simply lift a finger."],
+  ["A7sus4","Asus4 with the G string open."],
+  ["Am7","Am with the 3rd finger lifted."],
+  ["Fmaj7","No barre needed: the stepping stone to F."],
+  ["Cmaj7","C with the 1st finger lifted. Soft and jazzy."],
+  ["F","The big one. Work through the barre chord lesson; it takes a few weeks."],
+  ["Bm","The A-shape minor barre at fret 2."],
+  ["F#m","The E-shape minor barre at fret 2."],
+  ["B","The A-shape major barre at fret 2."],
+  ["Bb","The A-shape major barre at fret 1."],
+  ["C#m","The A-shape minor barre at fret 4."],
+  ["Cm","The A-shape minor barre at fret 3."],
+];
+const CHORD_LESSON = { E7:"color", A7:"color", D7:"color", G7:"color", C7:"color", B7:"color", Dsus4:"color", Dsus2:"color", Asus2:"color", Asus4:"color", Cmaj7:"color", Fmaj7:"barre", F:"barre", Bm:"barre", "F#m":"shapes", B:"shapes", Bb:"shapes", "C#m":"shapes", Cm:"shapes" };
+const LESSON_SONGS = {
+  changes:["b-water","b-auld","s:knockin","s:jetplane"], strum:["b-susanna","s:standbyme","s:browneyed","s:wagon"], tabs:["b-ode","b-blues","s:wishyou"],
+  color:["b-wayfaring","s:freefallin","s:alabama","s:wonderwall"], power:["b-blues","s:heyjoe"], capo:["b-amazing","s:perfect","s:fastcar"],
+  barre:["b-rising","b-redriver","s:letitbe","s:hallelujah"], shapes:["s:delilah","s:creep","s:hotel"], finger:["b-rising","b-scarborough","s:wonderful"],
+  penta:["b-blues"], legato:["b-blues","s:wishyou"], notes:["b-ode"], intervals:["b-ode","b-amazing"], triads:["b-greensleeves","s:losing"],
+  scale:["b-amazing","b-water","s:standbyme"], keys:["s:letitbe","s:standbyme","b-blues"], rhythm:["b-amazing","b-rising","b-blues"],
+};
+const DEFAULT_KNOWN = ["C","D","E","G","A","Am","Dm","Em"];
+function knownSet(){ if (!Store.progress.known) Store.progress.known = Object.fromEntries(DEFAULT_KNOWN.map(c => [c, true])); return Store.progress.known; }
+function normChord(sym){ const s = String(sym).replace(/^\(|\)$/g, "").replace(/\*$/, ""); const p = parseChord(s); if (!p) return s; return (NICE[NOTE_IDX[p.root]] ?? p.root) + (p.q === "min" ? "m" : p.q); }
+function songChords(s){ return [...new Set((s.c || chordsInSong(s.body || "")).map(normChord))]; }
+function songPool(){
+  return [
+    ...BUILTIN.map(s => ({ kind:"builtin", id:s.id, t:s.title, a:s.artist, chords:songChords(s) })),
+    ...SUGGESTED.map(s => ({ kind:"suggest", id:"s:" + s.id, t:s.t, a:s.a, chords:songChords(s), capo:s.capo, note:s.note })),
+    ...Store.songs.map(s => ({ kind:"mine", id:s.id, t:s.title || "Untitled", a:s.artist || "", chords:songChords(s) })),
+  ].filter(s => s.chords.length);
+}
+const missingFor = (s, k = knownSet()) => s.chords.filter(c => !k[c]);
+function recommend(n = 3){
+  const k = knownSet(), pool = songPool(), order = CURRICULUM.map(c => c[0]);
+  const cands = new Set([...order.filter(c => !k[c]), ...pool.flatMap(s => missingFor(s, k))]);
+  const out = [];
+  for (const c of cands){
+    const unlock = pool.filter(s => { const m = missingFor(s, k); return m.length === 1 && m[0] === c; });
+    const closer = pool.filter(s => { const m = missingFor(s, k); return m.length === 2 && m.includes(c); });
+    const idx = order.indexOf(c), ease = idx < 0 ? 0 : (order.length - idx) / order.length * 4;
+    const tip = (CURRICULUM.find(x => x[0] === c) || [])[1] || "Look it up in the chord library and practise switching to it from a chord you know.";
+    out.push({ c, unlock, closer, tip, score: unlock.length * 3 + closer.length + ease });
+  }
+  return out.sort((a, b) => b.score - a.score).slice(0, n);
+}
+function poolRow(s, k = knownSet()){
+  const m = missingFor(s, k);
+  const status = m.length ? `<span class="chip mid">Needs ${m.map(esc).join(", ")}</span>` : `<span class="chip easy">Ready to play</span>`;
+  const where = s.kind === "suggest" ? "Look up the chart" : s.kind === "mine" ? "My song" : "In the songbook";
+  return `<button class="songrow" data-open="${esc(s.id)}"><span class="grow"><span class="t">${esc(s.t)}</span><br><span class="meta">${esc(s.a)} · ${s.chords.map(esc).join(" ")}${s.capo ? " · capo " + s.capo : ""} · ${where}</span></span>${status}</button>`;
+}
+function addSuggested(id){
+  const s = SUGGESTED.find(x => x.id === id); if (!s) return;
+  state.draft = { title:s.t, artist:s.a, capo:s.capo || 0, body:`{c: Chords used in this song. Paste the full chart from a chord site, or add a screenshot above.}\n${s.c.join("   ")}\n` };
+  navTo("songs", "new"); toast("Find the chart online, then paste it or add a screenshot");
+}
+function recCard(r, primary, extra = ""){
+  const n = r.unlock.length;
+  return `<div class="panel rec ${primary ? "primary" : ""}"><div class="recrow"><div class="recdia">${chordCard(r.c)}</div><div class="grow" style="display:grid;gap:8px">
+    <p class="eyebrow">${primary ? "Your next chord" : "Also worth learning"}</p><h2>${esc(r.c)}</h2><p>${esc(r.tip)}</p>
+    ${n ? `<p class="small"><b>Unlocks ${n} song${n === 1 ? "" : "s"}:</b> ${r.unlock.slice(0, 6).map(s => `<button class="linkbtn" data-open="${esc(s.id)}">${esc(s.t)}</button>`).join(", ")}${n > 6 ? ` and ${n - 6} more` : ""}</p>` : ""}
+    ${r.closer.length ? `<p class="small muted">Also gets you one chord away from ${r.closer.length} more song${r.closer.length === 1 ? "" : "s"}.</p>` : ""}
+    ${extra}
+    <div class="row">${CHORD_LESSON[r.c] ? `<button class="btn sm" data-lesson="${CHORD_LESSON[r.c]}">Open the lesson</button>` : ""}<button class="btn sm primary" data-learned="${esc(r.c)}">I can play ${esc(r.c)} now</button></div>
+  </div></div></div>`;
+}
+function viewPlan(){
+  const el = h(`<section class="view">
+    <div class="row"><button class="btn ghost sm" data-back>${ICON.back}Learning path</button></div>
+    <div style="display:grid;gap:6px"><p class="eyebrow">Chord plan</p><h1>What to learn next</h1>
+      <p class="muted" style="max-width:62ch">Tick the chords you can play cleanly. The plan suggests the chord that unlocks the most songs while keeping a sensible order: open chords, then sevenths and color chords, then barre chords.</p></div>
+    <div id="recs" style="display:grid;gap:12px"></div>
+    <div style="display:grid;gap:10px"><h2>Chords I can play</h2><p class="small muted" id="kcount"></p><div class="chordgrid" id="kgrid"></div></div>
+    <div style="display:grid;gap:10px"><h2>Songs you can play now</h2><div class="songlist" id="ready"></div></div>
+    <div style="display:grid;gap:10px"><h2>One chord away</h2><div class="songlist" id="almost"></div></div>
+  </section>`);
+  const draw = () => {
+    const k = knownSet(), pool = songPool(), recs = recommend(3);
+    $("#recs", el).innerHTML = recs.length ? recs.map((r, i) => recCard(r, i === 0)).join("") : `<div class="panel"><h2>You know every chord on the plan</h2><p class="muted">Pick songs from the list below, or add your own.</p></div>`;
+    const n = CURRICULUM.filter(([c]) => k[c]).length;
+    $("#kcount", el).textContent = `${n} of ${CURRICULUM.length} ticked. Tap a chord to tick or untick it.`;
+    $("#kgrid", el).innerHTML = CURRICULUM.map(([c]) => `<button class="chordcard ${k[c] ? "known" : ""}" data-known="${esc(c)}" aria-pressed="${!!k[c]}"><span class="cn">${k[c] ? "✓ " : ""}${esc(c)}</span>${chordSVG(c, shapeFor(c), { noFingers:true })}</button>`).join("");
+    const ready = pool.filter(s => !missingFor(s, k).length), almost = pool.filter(s => missingFor(s, k).length === 1);
+    $("#ready", el).innerHTML = ready.length ? ready.map(s => poolRow(s, k)).join("") : `<p class="small muted">Tick the chords you know to see which songs you can play.</p>`;
+    $("#almost", el).innerHTML = almost.length ? almost.map(s => poolRow(s, k)).join("") : `<p class="small muted">Nothing is one chord away right now.</p>`;
+  };
+  draw();
+  el.addEventListener("click", e => { const b = e.target.closest("[data-known]"); if (!b) return; const k = knownSet(), c = b.dataset.known; if (k[c]) delete k[c]; else k[c] = true; Store.saveProgress(); draw(); });
+  $("[data-back]", el).onclick = () => navTo("learn");
+  return el;
+}
+document.addEventListener("click", e => {
+  const o = e.target.closest("[data-open]");
+  if (o){ const id = o.dataset.open; if (id.startsWith("s:")) addSuggested(id.slice(2)); else { state.transpose = 0; navTo("songs", id); } return; }
+  const l = e.target.closest("[data-lesson]"); if (l){ navTo("learn", l.dataset.lesson); return; }
+  const k = e.target.closest("[data-learned]");
+  if (k){ knownSet()[k.dataset.learned] = true; Store.saveProgress(); toast(`${k.dataset.learned} added to your chords`); render(); return; }
+  if (e.target.closest("[data-plan]")) navTo("learn", "plan");
+});
+
+/* ===================== theory widgets ===================== */
+const FLATS = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+function noteQuiz(){
+  const strMidi = [64,59,55,50,45,40]; let cur, streak = 0, wait = false;
+  const el = h(`<div class="panel embed"><div class="row" style="justify-content:space-between"><h3>Name that note</h3><span class="small muted" id="qs"></span></div>
+    <div class="fretwrap" id="qf"></div><div class="notebtns" id="qb">${NICE.map((n, i) => `<button class="btn sm" data-n="${i}">${n}</button>`).join("")}</div>
+    <p class="small muted" id="qm">Which note is the brass dot? Strings are shown like tab: high e on top.</p></div>`);
+  const score = () => $("#qs", el).textContent = `Streak ${streak} · best ${Store.progress.quizBest || 0}`;
+  const next = () => { wait = false; const s = Math.floor(Math.random() * 6), f = 1 + Math.floor(Math.random() * 12); cur = { s, f, n: (strMidi[s] + f) % 12 }; $("#qf", el).innerHTML = fretboardSVG({ from:0, to:12, dots:[{ s, f, label:"?", root:true }] }); };
+  next(); score();
+  $("#qb", el).onclick = e => {
+    const b = e.target.closest("[data-n]"); if (!b || wait) return;
+    Audio.pluck(midiToFreq(strMidi[cur.s] + cur.f), 0, 0.5, 1.5);
+    const name = NICE[cur.n] + (NICE[cur.n] !== SHARP[cur.n] ? ` / ${SHARP[cur.n]}` : "");
+    if (+b.dataset.n === cur.n){ streak++; if (streak > (Store.progress.quizBest || 0)){ Store.progress.quizBest = streak; Store.saveProgress(); } $("#qm", el).textContent = `Yes: ${name}.`; next(); }
+    else { streak = 0; wait = true; $("#qm", el).textContent = `Not quite. String ${cur.s + 1}, fret ${cur.f} is ${name}.`; setTimeout(next, 1600); }
+    score();
+  };
+  return el;
+}
+const INTERVALS = [
+  [1,"Minor 2nd","m2","Jaws theme"], [2,"Major 2nd","M2","Happy Birthday (“-py birth-”)"], [3,"Minor 3rd","m3","Greensleeves (“A-las”)"],
+  [4,"Major 3rd","M3","When the Saints (“Oh when”)"], [5,"Perfect 4th","P4","Here Comes the Bride, Amazing Grace (“A-ma-”)"], [6,"Tritone","TT","The Simpsons theme"],
+  [7,"Perfect 5th","P5","Twinkle Twinkle (“twin-kle twin-kle”)"], [8,"Minor 6th","m6","Love Story theme (“Where do I begin”)"], [9,"Major 6th","M6","My Bonnie Lies Over the Ocean"],
+  [10,"Minor 7th","m7","Original Star Trek theme"], [11,"Major 7th","M7","Take On Me (chorus leap)"], [12,"Octave","P8","Somewhere Over the Rainbow (“Some-where”)"],
+];
+function intervalWidget(){
+  const root = 57; // A on the D string, 7th fret
+  const el = h(`<div class="panel embed"><h3>Hear each interval</h3><p class="small muted">Starts on A (D string, fret 7): low note, high note, then both together.</p>
+    <div class="tablewrap"><table class="keys"><thead><tr><th>Frets</th><th>Interval</th><th>Sounds like the start of</th><th></th></tr></thead><tbody>
+    ${INTERVALS.map(([n, name, ab, cue]) => `<tr><td>${n}</td><td><b>${name}</b> <span class="muted small">${ab}</span></td><td class="small">${esc(cue)}</td><td><button class="btn sm" data-iv="${n}" aria-label="Play ${name}">${ICON.play}</button></td></tr>`).join("")}
+    </tbody></table></div></div>`);
+  el.addEventListener("click", e => { const b = e.target.closest("[data-iv]"); if (!b) return; const n = +b.dataset.iv;
+    Audio.pluck(midiToFreq(root), 0, 0.5, 1.2); Audio.pluck(midiToFreq(root + n), 0.55, 0.5, 1.2); Audio.pluck(midiToFreq(root), 1.25, 0.4, 1.8); Audio.pluck(midiToFreq(root + n), 1.25, 0.4, 1.8); });
+  return el;
+}
+const FORMULAS = [["","Major",[0,4,7]],["m","Minor",[0,3,7]],["7","Dominant 7",[0,4,7,10]],["maj7","Major 7",[0,4,7,11]],["m7","Minor 7",[0,3,7,10]],["sus2","Sus2",[0,2,7]],["sus4","Sus4",[0,5,7]],["5","Power",[0,7]],["dim","Diminished",[0,3,6]]];
+const DEGREE = {0:"R",2:"2",3:"♭3",4:"3",5:"4",6:"♭5",7:"5",9:"6",10:"♭7",11:"7"};
+function spellChord(root, iv){ const r = NOTE_IDX[root], flatRoot = /b/.test(root) || root === "F"; return iv.map(i => ((flatRoot || [1,3,6,8,10].includes(i % 12)) ? FLATS : SHARP)[(r + i) % 12]); }
+function builderWidget(){
+  let root = "C", qi = 0;
+  const el = h(`<div class="panel embed"><h3>Chord builder</h3>
+    <div class="row"><label class="small muted" for="bRoot">Root</label><select id="bRoot" style="width:auto">${FLATS.map((r, i) => `<option value="${NICE[i]}">${NICE[i]}</option>`).join("")}</select></div>
+    <div class="seg" id="bQ">${FORMULAS.map(([, name], i) => `<button data-i="${i}" aria-pressed="${i === 0}">${name}</button>`).join("")}</div>
+    <div class="recrow"><div class="recdia" id="bDia"></div><div class="grow" style="display:grid;gap:10px;align-content:start">
+      <div class="bpm" id="bName" style="font-size:2.4rem"></div><div class="row" id="bNotes"></div><p class="small muted" id="bForm"></p>
+      <div class="row"><button class="btn sm primary" id="bPlay">${ICON.play}Strum</button><button class="btn sm" id="bArp">Note by note</button></div></div></div></div>`);
+  const draw = () => {
+    const [q, name, iv] = FORMULAS[qi], notes = spellChord(root, iv), sym = root + q;
+    $("#bName", el).textContent = sym;
+    $("#bNotes", el).innerHTML = notes.map((n, i) => `<span class="chip ${i === 0 ? "mid" : "easy"}" style="font-size:.95rem">${esc(n)} <small>${DEGREE[iv[i]]}</small></span>`).join("");
+    $("#bForm", el).textContent = `${name}: ${iv.map(i => DEGREE[i]).join(" – ")} (${iv.join(", ")} half steps above the root)`;
+    $("#bDia", el).innerHTML = chordCard(sym);
+  };
+  draw();
+  $("#bRoot", el).onchange = e => { root = e.target.value; draw(); };
+  $("#bQ", el).onclick = e => { const b = e.target.closest("button"); if (!b) return; qi = +b.dataset.i; [...$("#bQ", el).children].forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); };
+  $("#bPlay", el).onclick = () => Audio.strum(root + FORMULAS[qi][0]);
+  $("#bArp", el).onclick = () => { const base = 48 + NOTE_IDX[root]; Audio.playTabNotes([...FORMULAS[qi][2].map(i => [base + i, .6]), [FORMULAS[qi][2].map(i => base + i), 2]], 90); };
+  return el;
+}
+const KEY_NOTES = { C:"C D E F G A B", G:"G A B C D E F#", D:"D E F# G A B C#", A:"A B C# D E F# G#", E:"E F# G# A B C# D#", F:"F G A Bb C D E", Bb:"Bb C D Eb F G A" };
+const DIATONIC = [["I",""],["ii","m"],["iii","m"],["IV",""],["V",""],["vi","m"],["vii°","dim"]];
+function keyWidget(){
+  let key = "G";
+  const el = h(`<div class="panel embed"><h3>Key explorer</h3>
+    <div class="seg" id="kSel">${Object.keys(KEY_NOTES).map(k => `<button data-k="${k}" aria-pressed="${k === key}">${k}</button>`).join("")}</div>
+    <p class="small" id="kScale"></p><div class="keygrid" id="kChords"></div>
+    <div class="row"><button class="btn sm" id="kScaleBtn">${ICON.play}Scale</button><button class="btn sm" data-prog="0,3,4,0">I – IV – V – I</button><button class="btn sm" data-prog="0,4,5,3">I – V – vi – IV</button><button class="btn sm" data-prog="1,4,0">ii – V – I</button></div>
+    <p class="small muted" id="kRel"></p></div>`);
+  const chords = () => KEY_NOTES[key].split(" ").map((n, i) => n + DIATONIC[i][1]);
+  const draw = () => {
+    const notes = KEY_NOTES[key].split(" ");
+    $("#kScale", el).innerHTML = `<span class="eyebrow">Scale</span> <span style="font-family:var(--f-mono)">${notes.join("  ")}  ${notes[0]}</span>`;
+    $("#kChords", el).innerHTML = chords().map((c, i) => `<div class="keycell"><span class="eyebrow">${DIATONIC[i][0]}</span>${chordCard(c)}</div>`).join("");
+    $("#kRel", el).textContent = `Relative minor: ${chords()[5]}. Main chords: ${[0,3,4].map(i => chords()[i]).join(", ")} (I, IV, V). Most songs in ${key} use mostly these plus ${chords()[5]}.`;
+  };
+  draw();
+  $("#kSel", el).onclick = e => { const b = e.target.closest("button"); if (!b) return; key = b.dataset.k; [...$("#kSel", el).children].forEach(x => x.setAttribute("aria-pressed", x === b)); draw(); };
+  $("#kScaleBtn", el).onclick = () => { const base = 48 + NOTE_IDX[key]; Audio.playTabNotes([0,2,4,5,7,9,11,12].map(i => [base + i, .5]), 110); };
+  el.addEventListener("click", e => { const b = e.target.closest("[data-prog]"); if (!b) return; const cs = chords(); b.dataset.prog.split(",").forEach((i, n) => { Audio.strum(cs[+i], { when: n * 1.1 }); Audio.strum(cs[+i], { when: n * 1.1 + 0.55, up: true, vol: 0.2 }); }); });
+  return el;
+}
+const TOOLS = { changes: () => changesWidget(), notequiz: noteQuiz, intervals: intervalWidget, builder: builderWidget, keyexplorer: keyWidget };
+
 /* ===================== song text parsing ===================== */
 const TAB_LINE = /^\s*[eEBGDAbgda][#b]?\s*[|:]?[-0-9hpbrxs\/\\~|()<>.^*=t ]*-{3,}[-0-9hpbrxs\/\\~|()<>.^*=t ]*\|?\s*$/;
 const SECTION = /^\s*\[?\s*(intro|verse|chorus|pre-?chorus|bridge|outro|solo|interlude|riff|instrumental|coda|tag|refrain|line|form|accompaniment|ending|break)\b[^\]]*\]?\s*:?\s*$/i;
@@ -1158,18 +1471,22 @@ function changesWidget(){
 /* ===================== LEARN ===================== */
 function lessonDone(id){ return !!Store.progress.done[id]; }
 function viewLearn(){
+  if (state.sub === "plan") return viewPlan();
   if (state.sub) return viewLesson(LESSONS.find(l => l.id === state.sub));
   const total = LESSONS.length, done = LESSONS.filter(l => lessonDone(l.id)).length;
   const next = LESSONS.find(l => !lessonDone(l.id));
   const el = h(`<section class="view">
     <div style="display:grid;gap:8px"><p class="eyebrow">Learning path</p><h1>Beyond the basic chords</h1>
-      <p class="muted" style="max-width:62ch">You can already play the open chords. This path builds rhythm, barre chords, fingerpicking and lead playing. Do one lesson a week and practise its tasks for 15–20 minutes a day.</p></div>
+      <p class="muted" style="max-width:62ch">You can already play the open chords. This path builds rhythm, barre chords, fingerpicking, lead playing and the theory behind them. Do one lesson a week and practise its tasks for 15–20 minutes a day.</p></div>
     <div class="panel row"><div class="grow" style="display:grid;gap:8px"><div class="row" style="justify-content:space-between"><b>${done} of ${total} lessons complete</b>${next ? `<button class="btn sm primary" data-lesson="${next.id}">Continue: ${esc(next.title)}</button>` : `<span class="chip easy">Path complete</span>`}</div><div class="progress"><i style="width:${(done/total*100).toFixed(0)}%"></i></div></div></div>
+    <div id="nextc"></div>
     <div class="levels">${LEVELS.map((lv, i) => { const ls = LESSONS.filter(l => l.level === lv.id); const d = ls.filter(l => lessonDone(l.id)).length;
       return `<div class="level"><h2>${esc(lv.title)} <span class="chip ${d === ls.length ? "easy" : ""}">${d}/${ls.length}</span></h2><p class="muted small">${esc(lv.blurb)}</p>
       <div class="lessons">${ls.map(l => `<button class="lcard ${lessonDone(l.id) ? "done" : ""}" data-lesson="${l.id}"><span class="num">Lesson ${LESSONS.indexOf(l) + 1} · ${l.min} min</span><h3>${esc(l.title)}</h3><span class="small muted">${l.tasks.length} practice goals</span></button>`).join("")}</div></div>`; }).join("")}</div>
   </section>`);
-  el.addEventListener("click", e => { const b = e.target.closest("[data-lesson]"); if (b) navTo("learn", b.dataset.lesson); });
+  const rec = recommend(1)[0], k = knownSet(), readyN = songPool().filter(x => !missingFor(x, k).length).length;
+  const extra = `<p class="small muted">You can already play <b>${readyN}</b> song${readyN === 1 ? "" : "s"} with the chords you know.</p>`;
+  $("#nextc", el).innerHTML = rec ? recCard(rec, true, extra).replace('<div class="row">', '<div class="row"><button class="btn sm" data-plan>Chord plan and songs</button>') : `<div class="panel row"><b class="grow">You know every chord on the plan.</b><button class="btn sm" data-plan>See your songs</button></div>`;
   return el;
 }
 function viewLesson(l){
@@ -1178,6 +1495,7 @@ function viewLesson(l){
     <div class="row"><button class="btn ghost sm" data-back>${ICON.back}All lessons</button></div>
     <div style="display:grid;gap:6px"><p class="eyebrow">Lesson ${idx + 1} · ${esc(LEVELS.find(v => v.id === l.level).title)} · ${l.min} min</p><h1>${esc(l.title)}</h1></div>
     <div class="prose" id="prose"></div>
+    <div id="lsongs" style="display:grid;gap:10px"></div>
     <div class="panel" style="display:grid;gap:12px"><h3>Practice goals</h3><div class="tasks">${l.tasks.map((t, i) => { const k = l.id + ":" + i; return `<label><input type="checkbox" data-task="${k}" ${Store.progress.tasks[k] ? "checked" : ""}><span>${esc(t)}</span></label>`; }).join("")}</div>
       <div class="row"><button class="btn ${lessonDone(l.id) ? "" : "primary"}" id="ldone">${lessonDone(l.id) ? "Mark as not done" : "Mark lesson complete"}</button>${nxt ? `<button class="btn ghost" data-lesson="${nxt.id}">Next: ${esc(nxt.title)} →</button>` : ""}</div></div>
   </section>`);
@@ -1194,13 +1512,14 @@ function viewLesson(l){
     else if (kind === "strum"){ const [pat, ch] = arg.split("|"); prose.append(strumWidget(pat, ch.split(","))); }
     else if (kind === "prog") prose.append(progWidget(arg.split(",")));
     else if (kind === "fret") prose.append(h(`<div class="fretwrap">${FRETBOARDS[arg]()}</div>`));
-    else if (kind === "tool" && arg === "changes") prose.append(changesWidget());
+    else if (kind === "tool" && TOOLS[arg]) prose.append(TOOLS[arg]());
   }
   flush();
   el.addEventListener("change", e => { const k = e.target.dataset.task; if (!k) return; Store.progress.tasks[k] = e.target.checked; if (l.tasks.every((_, i) => Store.progress.tasks[l.id + ":" + i]) && !lessonDone(l.id)){ Store.progress.done[l.id] = Date.now(); toast("All goals ticked. Lesson complete!"); $("#ldone", el).textContent = "Mark as not done"; $("#ldone", el).classList.remove("primary"); } Store.saveProgress(); });
   $("#ldone", el).onclick = () => { if (lessonDone(l.id)) delete Store.progress.done[l.id]; else { Store.progress.done[l.id] = Date.now(); toast("Lesson complete"); } Store.saveProgress(); const b = $("#ldone", el); b.textContent = lessonDone(l.id) ? "Mark as not done" : "Mark lesson complete"; b.classList.toggle("primary", !lessonDone(l.id)); };
+  const ls = (LESSON_SONGS[l.id] || []).map(id => songPool().find(s => s.id === id)).filter(Boolean);
+  if (ls.length) $("#lsongs", el).innerHTML = `<h2>Songs to practise this</h2><div class="songlist">${ls.map(s => poolRow(s)).join("")}</div>`;
   $("[data-back]", el).onclick = () => navTo("learn");
-  el.addEventListener("click", e => { const b = e.target.closest("[data-lesson]"); if (b) navTo("learn", b.dataset.lesson); });
   return el;
 }
 
@@ -1276,6 +1595,7 @@ function viewSongs(){
     <div class="row"><input type="search" id="sq" placeholder="Search title, artist or chord" class="grow" style="max-width:420px"><div class="seg" id="sf"><button aria-pressed="true" data-f="all">All</button><button aria-pressed="false" data-f="mine">My songs</button><button aria-pressed="false" data-f="Easy">Easy</button><button aria-pressed="false" data-f="Intermediate">Intermediate</button></div></div>
     <div id="mine" style="display:grid;gap:10px"></div>
     <div style="display:grid;gap:10px"><h2>Starter songbook</h2><p class="small muted">Traditional and public-domain songs chosen to practise what's in the lessons.</p><div class="songlist" id="built"></div></div>
+    <div style="display:grid;gap:10px" id="sugwrap"><h2>Songs to look up</h2><p class="small muted">Popular songs that use chords from the lessons, easiest for you first. Find the chart on a chord site, then tap a song to add it by pasting the chart or a screenshot.</p><div class="songlist" id="sug"></div></div>
   </section>`);
   let filter = "all", q = "";
   const row = s => { const cs = chordsInSong(s.body).slice(0, 6); return `<button class="songrow" data-song="${esc(s.id)}"><span class="keybadge ${s.user ? "user" : ""}">${esc(s.key || cs[0] || "♪")}</span><span class="grow"><span class="t">${esc(s.title || "Untitled")}</span><br><span class="meta">${esc(s.artist || "Unknown artist")}${cs.length ? " · " + esc(cs.join(" ")) : ""}${s.images?.length ? " · screenshot" : ""}</span></span>${s.level ? `<span class="chip ${s.level === "Easy" ? "easy" : "mid"}">${esc(s.level)}</span>` : ""}</button>`; };
@@ -1287,6 +1607,9 @@ function viewSongs(){
       : `<div class="empty"><b>Your songs will appear here</b><p class="small muted">Paste chords or a tab from any website, or add a screenshot of a song sheet. ${Store.mode === "cloud" ? "They're saved to your Claude account." : "They're saved in this browser."}</p><button class="btn primary" data-new>${ICON.plus}Add your first song</button></div>`) : "";
     const b = BUILTIN.filter(match); $("#built", el).innerHTML = b.length ? b.map(row).join("") : `<p class="small muted">No matches.</p>`;
     $("#built", el).parentElement.hidden = filter === "mine";
+    const k = knownSet(); const sug = songPool().filter(x => x.kind === "suggest").filter(x => !q || q.toLowerCase().split(/\s+/).every(w => (x.t + " " + x.a + " " + x.chords.join(" ")).toLowerCase().includes(w))).sort((a, b) => missingFor(a, k).length - missingFor(b, k).length);
+    $("#sug", el).innerHTML = sug.length ? sug.map(x => poolRow(x, k)).join("") : `<p class="small muted">No matches.</p>`;
+    $("#sugwrap", el).hidden = filter !== "all";
   };
   draw();
   $("#sq", el).oninput = e => { q = e.target.value.trim(); draw(); };
